@@ -15,7 +15,8 @@ class UserCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(backgroundImage: AssetImage('assets/doctor.jpg')),
+          CircleAvatar(
+              backgroundImage: AssetImage('assets/images/profile.jpg')),
           SizedBox(width: 10),
           Expanded(
             child: Text(

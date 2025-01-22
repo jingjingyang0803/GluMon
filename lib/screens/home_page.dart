@@ -6,8 +6,8 @@ import '../components/bottom_nav_bar.dart';
 import '../components/current_glucose_card.dart';
 import '../components/user_card.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
