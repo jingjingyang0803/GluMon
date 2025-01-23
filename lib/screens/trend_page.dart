@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:glu_mon/utils/color_utils.dart';
 
 class TrendPage extends StatelessWidget {
   final List<Map<String, dynamic>> glucoseData = [
@@ -18,13 +17,13 @@ class TrendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double minValue =
-        glucoseData.map<double>((e) => e['value'].toDouble()).reduce(min);
-    double maxValue =
-        glucoseData.map<double>((e) => e['value'].toDouble()).reduce(max);
+    double minY = 50; // 🔹 Set fixed Y min
+    double maxY = 200; // 🔹 Set fixed Y max
 
-    var minEntry = glucoseData.firstWhere((e) => e['value'] == minValue);
-    var maxEntry = glucoseData.firstWhere((e) => e['value'] == maxValue);
+    var minEntry =
+        glucoseData.reduce((a, b) => a['value'] < b['value'] ? a : b);
+    var maxEntry =
+        glucoseData.reduce((a, b) => a['value'] > b['value'] ? a : b);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Glucose Trend')),
@@ -64,32 +63,73 @@ class TrendPage extends StatelessWidget {
             Expanded(
               child: LineChart(
                 LineChartData(
-                  titlesData: FlTitlesData(show: true),
+                  minY: minY, // 🔹 Set fixed min Y
+                  maxY: maxY, // 🔹 Set fixed max Y
+
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval:
+                            1, // 🔹 Ensure labels only appear at defined spots
+                        getTitlesWidget: (value, meta) {
+                          int index = value.toInt();
+                          if (index >= 0 && index < glucoseData.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Text(
+                                glucoseData[index]
+                                    ['time'], // ✅ Show actual time values
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            );
+                          }
+                          return const SizedBox
+                              .shrink(); // 🔹 Hide unnecessary labels
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize:
+                            40, // 🔹 Increase space for left Y-axis labels
+                      ),
+                    ),
+                    topTitles: AxisTitles(
+                      // 🔹 Hide top labels
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: AxisTitles(
+                      // 🔹 Hide right labels if needed
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
                   borderData: FlBorderData(show: false),
                   gridData: FlGridData(show: true, drawVerticalLine: false),
 
-                  /// ✅ **Fixed Background Sections using `rangeAnnotations`**
+                  /// ✅ **Fixed Background Sections**
                   rangeAnnotations: RangeAnnotations(
                     horizontalRangeAnnotations: [
                       HorizontalRangeAnnotation(
-                        y1: 0,
+                        y1: minY, // 🔹 Start at the fixed min Y
                         y2: 70,
-                        color: Colors.red.withOpacity(0.2),
+                        color: Colors.red,
                       ),
                       HorizontalRangeAnnotation(
                         y1: 70,
                         y2: 140,
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green,
                       ),
                       HorizontalRangeAnnotation(
                         y1: 140,
                         y2: 180,
-                        color: Colors.orange.withOpacity(0.2),
+                        color: Colors.orangeAccent,
                       ),
                       HorizontalRangeAnnotation(
                         y1: 180,
-                        y2: 250,
-                        color: Colors.red.withOpacity(0.2),
+                        y2: maxY, // 🔹 End at the fixed max Y
+                        color: Colors.red,
                       ),
                     ],
                   ),
@@ -106,7 +146,7 @@ class TrendPage extends StatelessWidget {
                       isStrokeCapRound: true,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
-                      color: Colors.blue,
+                      color: primaryOrange,
                     ),
                   ],
                 ),
