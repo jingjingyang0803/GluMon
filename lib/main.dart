@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:glu_mon/screens/settings_page.dart';
+import 'package:glu_mon/screens/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,9 +32,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: HomePage(),
+      home: HomePage(),
       // home: TrendPage(),
-      home: SettingsPage(),
+      // home: SettingsPage(),
     );
   }
 }
