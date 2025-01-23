@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/screens/settings_page.dart';
+import 'package:glu_mon/screens/trend_page.dart';
 
-import '../screens/home_page.dart';
-import '../screens/settings_page.dart';
-import '../screens/trend_page.dart';
 import '../utils/color_utils.dart';
+import 'home_page.dart';
 
-class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+class BaseScreen extends StatefulWidget {
+  const BaseScreen({super.key});
 
   @override
-  BottomNavBarState createState() => BottomNavBarState();
+  BaseScreenState createState() => BaseScreenState();
 }
 
-class BottomNavBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
+class BaseScreenState extends State<BaseScreen> {
+  int _selectedIndex = 0; // Default page index (HomeScreen)
 
   // List of pages for navigation
   final List<Widget> _pages = [
     HomePage(),
-    TrendPage(),
-    SettingsPage(),
+    Placeholder(),
+    Placeholder(),
     TrendPage(),
     SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
     if (index == 2) {
-      // Handle special case for the middle button (e.g., show a modal)
+      // Special case for the middle button (e.g., open a modal)
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -51,7 +51,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex], // Displays the selected page
+      body: _pages[_selectedIndex], // Display selected page
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -72,7 +72,7 @@ class BottomNavBarState extends State<BottomNavBar> {
         unselectedItemColor: Colors.grey,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        onTap: _onItemTapped, // Handles navigation
+        onTap: _onItemTapped,
       ),
     );
   }

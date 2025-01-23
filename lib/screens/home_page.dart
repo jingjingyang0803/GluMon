@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:glu_mon/components/welcome_title.dart';
 
 import '../components/avg_glucose_card.dart';
-import '../components/bottom_nav_bar.dart';
 import '../components/current_glucose_card.dart';
 import '../components/info_card.dart';
 
@@ -41,7 +40,6 @@ class HomePage extends StatelessWidget {
               glucoseValue: 225,
             ),
             Spacer(),
-            BottomNavBar(),
           ],
         ),
       ),
