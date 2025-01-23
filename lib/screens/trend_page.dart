@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../components/glucose_card.dart';
+
 class TrendPage extends StatelessWidget {
   final List<Map<String, dynamic>> glucoseData = [
     {'time': '08:00', 'value': 90},
@@ -25,7 +27,13 @@ class TrendPage extends StatelessWidget {
         glucoseData.reduce((a, b) => a['value'] > b['value'] ? a : b);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Glucose Trend')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Glucose Trend'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -34,25 +42,17 @@ class TrendPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Column(
-                  children: [
-                    Text('Highest: ${maxEntry['value']} mg/dL',
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red)),
-                    Text('Time: ${maxEntry['time']}'),
-                  ],
+                GlucoseCard(
+                  label: 'Highest Glucose',
+                  value: '${maxEntry['value']}',
+                  time: '${maxEntry['time']}',
+                  color: Colors.red,
                 ),
-                Column(
-                  children: [
-                    Text('Lowest: ${minEntry['value']} mg/dL',
-                        style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue)),
-                    Text('Time: ${minEntry['time']}'),
-                  ],
+                GlucoseCard(
+                  label: 'Lowest Glucose',
+                  value: '${minEntry['value']}',
+                  time: '${minEntry['time']}',
+                  color: Colors.blue,
                 ),
               ],
             ),
