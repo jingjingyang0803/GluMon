@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../components/date_picker_widget.dart';
 import '../components/glucose_card.dart';
 
 class TrendPage extends StatelessWidget {
@@ -39,6 +40,12 @@ class TrendPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            DatePickerWidget(
+              onDateSelected: (selectedDate) {
+                print("Selected Date: $selectedDate");
+              },
+            ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
