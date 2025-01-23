@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:glu_mon/utils/color_utils.dart';
 
 class TrendPage extends StatelessWidget {
   final List<Map<String, dynamic>> glucoseData = [
@@ -8,7 +7,7 @@ class TrendPage extends StatelessWidget {
     {'time': '10:00', 'value': 120},
     {'time': '12:00', 'value': 160},
     {'time': '14:00', 'value': 110},
-    {'time': '16:00', 'value': 85},
+    {'time': '16:00', 'value': 65},
     {'time': '18:00', 'value': 100},
     {'time': '20:00', 'value': 190},
   ];
@@ -32,14 +31,12 @@ class TrendPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('Glucose Levels Today',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
                   children: [
-                    Text('Max: ${maxEntry['value']} mg/dL',
+                    Text('Highest: ${maxEntry['value']} mg/dL',
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -49,7 +46,7 @@ class TrendPage extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    Text('Min: ${minEntry['value']} mg/dL',
+                    Text('Lowest: ${minEntry['value']} mg/dL',
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -106,7 +103,7 @@ class TrendPage extends StatelessWidget {
                     ),
                   ),
                   borderData: FlBorderData(show: false),
-                  gridData: FlGridData(show: true, drawVerticalLine: false),
+                  gridData: FlGridData(show: false, drawVerticalLine: false),
 
                   /// ✅ **Fixed Background Sections**
                   rangeAnnotations: RangeAnnotations(
@@ -114,22 +111,22 @@ class TrendPage extends StatelessWidget {
                       HorizontalRangeAnnotation(
                         y1: minY, // 🔹 Start at the fixed min Y
                         y2: 70,
-                        color: Colors.red,
+                        color: Colors.red.withValues(alpha: 0.5),
                       ),
                       HorizontalRangeAnnotation(
                         y1: 70,
                         y2: 140,
-                        color: Colors.green,
+                        color: Colors.green.withValues(alpha: 0.5),
                       ),
                       HorizontalRangeAnnotation(
                         y1: 140,
                         y2: 180,
-                        color: Colors.orangeAccent,
+                        color: Colors.orangeAccent.withValues(alpha: 0.5),
                       ),
                       HorizontalRangeAnnotation(
                         y1: 180,
                         y2: maxY, // 🔹 End at the fixed max Y
-                        color: Colors.red,
+                        color: Colors.red.withValues(alpha: 0.5),
                       ),
                     ],
                   ),
@@ -146,7 +143,7 @@ class TrendPage extends StatelessWidget {
                       isStrokeCapRound: true,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
-                      color: primaryOrange,
+                      color: Colors.blueAccent,
                     ),
                   ],
                 ),
