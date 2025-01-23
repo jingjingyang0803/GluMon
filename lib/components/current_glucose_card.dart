@@ -22,7 +22,7 @@ class CurrentGlucoseCard extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.4,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: primaryBlue, // Dynamic color
+        color: primaryOrange, // Dynamic color
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

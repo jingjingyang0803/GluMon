@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:glu_mon/screens/settings_page.dart';
 import 'package:glu_mon/screens/trend_page.dart';
 
-import '../utils/color_utils.dart';
+import '../components/bottom_nav_bar.dart';
 import 'home_page.dart';
 
 class BaseScreen extends StatefulWidget {
@@ -52,28 +52,7 @@ class BaseScreenState extends State<BaseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex], // Display selected page
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.water_drop_outlined), label: 'Measures'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle, size: 40), label: ''),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.trending_up_outlined), label: 'History'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: primaryBlue,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: BottomNavBar(),
     );
   }
 }

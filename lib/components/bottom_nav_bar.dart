@@ -30,8 +30,8 @@ class BottomNavBarState extends State<BottomNavBar> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Add Measurement'),
-          content: Text('Navigate to add new measurement.'),
+          title: Text('Pairing the sensor...'),
+          content: Text('Almost done!'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -61,7 +61,8 @@ class BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
               icon: Icon(Icons.water_drop_outlined), label: 'Measures'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.add_circle, size: 40), label: ''),
+              icon: Icon(Icons.add_circle, size: 60, color: primaryBlue),
+              label: ''),
           BottomNavigationBarItem(
               icon: Icon(Icons.trending_up_outlined), label: 'History'),
           BottomNavigationBarItem(
