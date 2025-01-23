@@ -15,16 +15,47 @@ class SettingsPageState extends State<SettingsPage> {
   Duration muteDuration = Duration(minutes: 30);
   String selectedInterval = 'Every minute';
   TextEditingController customIntervalController = TextEditingController();
+  double highBgAlert = 180;
+  double lowBgAlert = 80;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Settings')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('Blood Glucose Alerts',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('High BG Alert: ${highBgAlert.toInt()} mg/dL'),
+            Slider(
+              value: highBgAlert,
+              min: 100,
+              max: 300,
+              divisions: 40,
+              label: highBgAlert.toInt().toString(),
+              onChanged: (value) {
+                setState(() {
+                  highBgAlert = value;
+                });
+              },
+            ),
+            Text('Low BG Alert: ${lowBgAlert.toInt()} mg/dL'),
+            Slider(
+              value: lowBgAlert,
+              min: 40,
+              max: 100,
+              divisions: 30,
+              label: lowBgAlert.toInt().toString(),
+              onChanged: (value) {
+                setState(() {
+                  lowBgAlert = value;
+                });
+              },
+            ),
+            Divider(),
             Text('Alert Settings',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SwitchListTile(
@@ -58,7 +89,7 @@ class SettingsPageState extends State<SettingsPage> {
             Text('Notification Settings',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SwitchListTile(
-              title: Text('Mute Notifications'),
+              title: Text('Disable all notifications'),
               value: muteNotifications,
               onChanged: (value) {
                 setState(() {
