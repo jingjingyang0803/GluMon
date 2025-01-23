@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/utils/color_utils.dart';
 
 class CurrentGlucoseCard extends StatelessWidget {
   final String value;
@@ -12,18 +13,6 @@ class CurrentGlucoseCard extends StatelessWidget {
     required this.time,
   });
 
-  Color getGlucoseColor(double glucose) {
-    if (glucose < 70) {
-      return Colors.redAccent; // Low glucose
-    } else if (glucose >= 70 && glucose <= 140) {
-      return Colors.green; // Normal range
-    } else if (glucose > 140 && glucose <= 180) {
-      return Colors.orangeAccent; // Slightly high
-    } else {
-      return Colors.red; // Very high
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     double glucoseValue =
@@ -33,7 +22,7 @@ class CurrentGlucoseCard extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.4,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: getGlucoseColor(glucoseValue), // Dynamic color
+        color: primaryBlue, // Dynamic color
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

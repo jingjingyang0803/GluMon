@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             InfoCard(
-              glucoseValue: 180,
+              glucoseValue: 225,
             ),
             Spacer(),
             BottomNavBar(),
