@@ -4,7 +4,7 @@ import 'package:glu_mon/components/welcome_title.dart';
 import '../components/avg_glucose_card.dart';
 import '../components/bottom_nav_bar.dart';
 import '../components/current_glucose_card.dart';
-import '../components/user_card.dart';
+import '../components/info_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -37,7 +37,9 @@ class HomePage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-            UserCard(),
+            InfoCard(
+              glucoseValue: 180,
+            ),
             Spacer(),
             BottomNavBar(),
           ],
