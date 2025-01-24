@@ -83,18 +83,18 @@ class SettingsPageState extends State<SettingsPage> {
                     fontWeight: FontWeight.w500,
                     color: primaryTextColor),
               ),
-              Icon(Icons.warning, color: primaryTextColor),
+              Icon(Icons.warning_amber, color: primaryTextColor),
             ],
           ),
           SizedBox(height: 12),
-          _buildIndentedSliderTile("Very Low", veryLow, 40, 100,
-              (val) => setState(() => veryLow = val)),
-          _buildIndentedSliderTile("Very High", veryHigh, 150, 400,
-              (val) => setState(() => veryHigh = val)),
-          _buildIndentedSliderTile("Big Drop", bigDrop, 5, 50,
-              (val) => setState(() => bigDrop = val)),
-          _buildIndentedSliderTile("Big Rise", bigRise, 10, 60,
-              (val) => setState(() => bigRise = val)),
+          _buildIndentedSliderTile("Very Low  (${veryLow.toInt()})", veryLow,
+              40, 100, (val) => setState(() => veryLow = val)),
+          _buildIndentedSliderTile("Very High  (${veryHigh.toInt()})", veryHigh,
+              150, 400, (val) => setState(() => veryHigh = val)),
+          _buildIndentedSliderTile("Big Drop  (${bigDrop.toInt()})", bigDrop, 5,
+              50, (val) => setState(() => bigDrop = val)),
+          _buildIndentedSliderTile("Big Rise  (${bigRise.toInt()})", bigRise,
+              10, 60, (val) => setState(() => bigRise = val)),
         ],
       ),
     );
@@ -147,22 +147,29 @@ class SettingsPageState extends State<SettingsPage> {
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: primaryTextColor)),
-          Container(
-            decoration: BoxDecoration(
-              color: value ? primaryTextColor : Colors.grey[300],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            width: 50,
-            height: 30,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  left: value ? 20 : 0,
-                  child: GestureDetector(
-                    onTap: () => onChanged(!value),
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
+          GestureDetector(
+            onTap: () => onChanged(!value), // Toggle on tap
+            onPanUpdate: (details) {
+              if (details.delta.dx > 0 && !value) {
+                onChanged(true); // Drag right to turn ON
+              } else if (details.delta.dx < 0 && value) {
+                onChanged(false); // Drag left to turn OFF
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: value ? primaryTextColor : Colors.grey[300],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              width: 50,
+              height: 30,
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  AnimatedPositioned(
+                    duration: Duration(milliseconds: 200),
+                    left: value ? 20 : 0,
+                    child: Container(
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
@@ -175,8 +182,8 @@ class SettingsPageState extends State<SettingsPage> {
                           : Container(),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
