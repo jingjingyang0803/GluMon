@@ -37,19 +37,19 @@ class AvgGlucoseCard extends StatelessWidget {
           ),
           SizedBox(height: 8),
           GlucoseRow(
-            value: '216',
+            value: max,
             label: 'Max',
             color: Colors.red,
           ),
           SizedBox(height: 8),
           GlucoseRow(
-            value: '95',
+            value: min,
             label: 'Min',
             color: Colors.green,
           ),
           SizedBox(height: 8),
           GlucoseRow(
-            value: '116',
+            value: avg,
             label: 'Avg',
             color: primaryBlue,
           ),
