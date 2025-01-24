@@ -13,7 +13,7 @@ class BaseScreen extends StatefulWidget {
 }
 
 class BaseScreenState extends State<BaseScreen> {
-  int _selectedIndex = 0; // Default page index (HomeScreen)
+  final int _selectedIndex = 0; // Default page index (HomeScreen)
 
   // List of pages for navigation
   final List<Widget> _pages = [
@@ -23,30 +23,6 @@ class BaseScreenState extends State<BaseScreen> {
     TrendPage(),
     SettingsPage(),
   ];
-
-  void _onItemTapped(int index) {
-    if (index == 2) {
-      // Special case for the middle button (e.g., open a modal)
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Add Measurement'),
-          content: Text('Navigate to add new measurement.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Close'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

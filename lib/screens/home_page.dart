@@ -12,10 +12,16 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: WelcomeTitle(name: "Jingjing"),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100), // Increase height to fit content
+        child: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          flexibleSpace: Padding(
+            padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+            child: WelcomeTitle(name: "Jingjing"),
+          ),
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
