@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:glu_mon/utils/color_utils.dart';
 
 import '../components/date_picker_widget.dart';
 import '../components/glucose_card.dart';
@@ -28,9 +29,9 @@ class TrendPage extends StatelessWidget {
         glucoseData.reduce((a, b) => a['value'] > b['value'] ? a : b);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Glucose Trend'),
+        title: const Text(''),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
@@ -150,7 +151,7 @@ class TrendPage extends StatelessWidget {
                       isStrokeCapRound: true,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
-                      color: Colors.blueAccent,
+                      color: primaryBlue,
                     ),
                   ],
                 ),

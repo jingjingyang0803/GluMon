@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/utils/color_utils.dart';
 import 'package:intl/intl.dart';
 
 class DatePickerWidget extends StatefulWidget {
@@ -48,10 +49,10 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
               width: 60,
               margin: EdgeInsets.symmetric(horizontal: 6),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.blue : Colors.white,
+                color: isSelected ? primaryBlue : Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 border:
-                    Border.all(color: isSelected ? Colors.blue : Colors.grey),
+                    Border.all(color: isSelected ? primaryBlue : Colors.grey),
               ),
               padding: EdgeInsets.all(8),
               child: Column(

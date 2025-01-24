@@ -31,7 +31,7 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text('',
             style: GoogleFonts.poppins(
