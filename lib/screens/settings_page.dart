@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../utils/color_utils.dart';
+import '../widgets/setting_tile.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -15,8 +16,10 @@ class SettingsPageState extends State<SettingsPage> {
   bool enableCallAlert = false;
   bool enableAlarm = false;
   bool muteNotifications = false;
-  Duration muteDuration = Duration(minutes: 30);
-  String selectedInterval = 'Every minute';
+
+  int selectedInterval = 5; // Default interval
+  final List<int> intervalChoices = [1, 5, 10, 15, 30, 60]; // Interval options
+
   TextEditingController customIntervalController = TextEditingController();
 
   double veryLow = 60;
@@ -43,18 +46,9 @@ class SettingsPageState extends State<SettingsPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
         child: Column(
           children: [
-            _buildSettingTile(
-                "Data Retrieval Interval", selectedInterval, Icons.access_time),
+            _buildIntervalTile(),
             _buildAlertLimitsTile(),
-            _buildSettingTile("Alert Settings", "", Icons.notifications_active),
-            _buildToggleTile("Trigger Vibration", enableVibration,
-                (val) => setState(() => enableVibration = val)),
-            _buildToggleTile("Trigger Phone Call Alert", enableCallAlert,
-                (val) => setState(() => enableCallAlert = val)),
-            _buildToggleTile("Trigger Alarm", enableAlarm,
-                (val) => setState(() => enableAlarm = val)),
-            _buildToggleTile("Disable all notifications", muteNotifications,
-                (val) => setState(() => muteNotifications = val)),
+            _buildAlertSettingsTile(),
             SizedBox(height: 20),
           ],
         ),
@@ -62,72 +56,58 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildAlertLimitsTile() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Alert Limits",
-                style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: primaryTextColor),
-              ),
-              Icon(Icons.warning_amber, color: primaryTextColor),
-            ],
-          ),
-          SizedBox(height: 12),
-          _buildIndentedSliderTile("Very Low  (${veryLow.toInt()})", veryLow,
-              40, 100, (val) => setState(() => veryLow = val)),
-          _buildIndentedSliderTile("Very High  (${veryHigh.toInt()})", veryHigh,
-              150, 400, (val) => setState(() => veryHigh = val)),
-          _buildIndentedSliderTile("Big Drop  (${bigDrop.toInt()})", bigDrop, 5,
-              50, (val) => setState(() => bigDrop = val)),
-          _buildIndentedSliderTile("Big Rise  (${bigRise.toInt()})", bigRise,
-              10, 60, (val) => setState(() => bigRise = val)),
-        ],
-      ),
+  Widget _buildIntervalTile() {
+    return SettingTile(
+      title: "Data Retrieval Interval",
+      subtitle: "Choose how often data is fetched",
+      icon: Icons.access_time,
+      children: intervalChoices.map((interval) {
+        return CheckboxListTile(
+          title: Text("$interval minutes"),
+          value: selectedInterval == interval,
+          onChanged: (bool? value) {
+            if (value == true) {
+              setState(() {
+                selectedInterval = interval;
+              });
+            }
+          },
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildSettingTile(String title, String subtitle, IconData icon) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: primaryTextColor)),
-              if (subtitle.isNotEmpty)
-                Text(subtitle,
-                    style:
-                        GoogleFonts.poppins(fontSize: 14, color: Colors.grey)),
-            ],
-          ),
-          Icon(icon, color: primaryTextColor),
-        ],
-      ),
+  Widget _buildAlertLimitsTile() {
+    return SettingTile(
+      title: "Alert Limits",
+      icon: Icons.warning_amber,
+      children: [
+        _buildSliderTile("Very Low (${veryLow.toInt()})", veryLow, 40, 100,
+            (val) => setState(() => veryLow = val)),
+        _buildSliderTile("Very High (${veryHigh.toInt()})", veryHigh, 150, 400,
+            (val) => setState(() => veryHigh = val)),
+        _buildSliderTile("Big Drop (${bigDrop.toInt()})", bigDrop, 5, 50,
+            (val) => setState(() => bigDrop = val)),
+        _buildSliderTile("Big Rise (${bigRise.toInt()})", bigRise, 10, 60,
+            (val) => setState(() => bigRise = val)),
+      ],
+    );
+  }
+
+  Widget _buildAlertSettingsTile() {
+    return SettingTile(
+      title: "Alert Settings",
+      icon: Icons.notifications_active_outlined,
+      children: [
+        _buildToggleTile("Trigger Vibration", enableVibration,
+            (val) => setState(() => enableVibration = val)),
+        _buildToggleTile("Trigger Phone Call Alert", enableCallAlert,
+            (val) => setState(() => enableCallAlert = val)),
+        _buildToggleTile("Trigger Alarm", enableAlarm,
+            (val) => setState(() => enableAlarm = val)),
+        _buildToggleTile("Trigger Notifications", muteNotifications,
+            (val) => setState(() => muteNotifications = val)),
+      ],
     );
   }
 
@@ -191,8 +171,8 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildIndentedSliderTile(String title, double value, double min,
-      double max, Function(double) onChanged) {
+  Widget _buildSliderTile(String title, double value, double min, double max,
+      Function(double) onChanged) {
     return Padding(
       padding: EdgeInsets.only(left: 32.0, right: 16.0, top: 8.0, bottom: 8.0),
       child: Column(
