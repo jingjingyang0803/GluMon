@@ -8,12 +8,12 @@ class SettingTile extends StatelessWidget {
   final List<Widget>? children;
 
   const SettingTile({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.icon,
     this.children,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class SettingTile extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color:
                             Colors.black), // Use `primaryTextColor` if defined

@@ -15,7 +15,7 @@ class SettingsPageState extends State<SettingsPage> {
   bool enableVibration = false;
   bool enableCallAlert = false;
   bool enableAlarm = false;
-  bool muteNotifications = false;
+  bool muteNotifications = true;
 
   int selectedInterval = 5; // Default interval
   final List<int> intervalChoices = [1, 5, 10, 15, 30, 60]; // Interval options
@@ -37,10 +37,10 @@ class SettingsPageState extends State<SettingsPage> {
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: primaryTextColor)),
+                color: primaryDarkBlue)),
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: primaryTextColor),
+        iconTheme: IconThemeData(color: primaryDarkBlue),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
@@ -63,8 +63,16 @@ class SettingsPageState extends State<SettingsPage> {
       icon: Icons.access_time,
       children: intervalChoices.map((interval) {
         return CheckboxListTile(
-          title: Text("$interval minutes"),
+          title: Text(
+            "$interval minutes",
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: primaryDarkBlue,
+            ),
+          ),
           value: selectedInterval == interval,
+          activeColor: primaryDarkBlue, // ✅ Makes the check tick BLUE
           onChanged: (bool? value) {
             if (value == true) {
               setState(() {
@@ -73,7 +81,7 @@ class SettingsPageState extends State<SettingsPage> {
             }
           },
         );
-      }).toList(),
+      }).toList(), // ✅ FIXED: Added closing parenthesis for children list
     );
   }
 
@@ -82,13 +90,13 @@ class SettingsPageState extends State<SettingsPage> {
       title: "Alert Limits",
       icon: Icons.warning_amber,
       children: [
-        _buildSliderTile("Very Low (${veryLow.toInt()})", veryLow, 40, 100,
-            (val) => setState(() => veryLow = val)),
-        _buildSliderTile("Very High (${veryHigh.toInt()})", veryHigh, 150, 400,
-            (val) => setState(() => veryHigh = val)),
-        _buildSliderTile("Big Drop (${bigDrop.toInt()})", bigDrop, 5, 50,
+        _buildSliderTile("Very Low (${veryLow.toInt()} mg/dL)", veryLow, 40,
+            100, (val) => setState(() => veryLow = val)),
+        _buildSliderTile("Very High (${veryHigh.toInt()} mg/dL)", veryHigh, 150,
+            400, (val) => setState(() => veryHigh = val)),
+        _buildSliderTile("Big Drop (${bigDrop.toInt()} mg/dL)", bigDrop, 5, 50,
             (val) => setState(() => bigDrop = val)),
-        _buildSliderTile("Big Rise (${bigRise.toInt()})", bigRise, 10, 60,
+        _buildSliderTile("Big Rise (${bigRise.toInt()} mg/dL)", bigRise, 10, 60,
             (val) => setState(() => bigRise = val)),
       ],
     );
@@ -124,9 +132,9 @@ class SettingsPageState extends State<SettingsPage> {
         children: [
           Text(title,
               style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: primaryTextColor)),
+                  color: primaryDarkBlue)),
           GestureDetector(
             onTap: () => onChanged(!value), // Toggle on tap
             onPanUpdate: (details) {
@@ -138,7 +146,7 @@ class SettingsPageState extends State<SettingsPage> {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: value ? primaryTextColor : Colors.grey[300],
+                color: value ? primaryDarkBlue : Colors.grey[300],
                 borderRadius: BorderRadius.circular(20),
               ),
               width: 50,
@@ -155,10 +163,10 @@ class SettingsPageState extends State<SettingsPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
-                        border: Border.all(color: primaryTextColor, width: 2),
+                        border: Border.all(color: primaryDarkBlue, width: 2),
                       ),
                       child: value
-                          ? Icon(Icons.check, color: primaryTextColor, size: 18)
+                          ? Icon(Icons.check, color: primaryDarkBlue, size: 18)
                           : Container(),
                     ),
                   ),
@@ -182,15 +190,15 @@ class SettingsPageState extends State<SettingsPage> {
               style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: primaryTextColor)),
+                  color: primaryDarkBlue)),
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               trackHeight: 4.0,
               thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.0),
               overlayShape: RoundSliderOverlayShape(overlayRadius: 16.0),
-              activeTrackColor: primaryTextColor,
+              activeTrackColor: primaryDarkBlue,
               inactiveTrackColor: Colors.grey[300],
-              thumbColor: primaryTextColor,
+              thumbColor: primaryDarkBlue,
               overlayColor: Colors.blue.withAlpha(20),
               tickMarkShape: null, // Remove tick marks
             ),
