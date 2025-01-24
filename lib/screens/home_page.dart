@@ -21,9 +21,9 @@ class _HomePageState extends State<HomePage> {
 
   // Fake!!!
   String userName = "Jingjing";
-  bool isConnected = true;
-  int batteryLevel = 85;
-  String currentGlucose = "135";
+  bool isConnected = false;
+  int batteryLevel = 45;
+  String currentGlucose = "165";
   String glucoseUnit = "mg/dL";
   String glucoseTime = "5 min ago";
   String maxGlucose = "180";

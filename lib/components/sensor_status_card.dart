@@ -55,7 +55,9 @@ class SensorStatusCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.battery_full,
-                color: batteryLevel > 20 ? Colors.green : Colors.red,
+                color: batteryLevel > 50
+                    ? Colors.green
+                    : (batteryLevel > 20 ? Colors.orange : Colors.red),
                 size: 24,
               ),
               SizedBox(width: 8),
@@ -64,7 +66,9 @@ class SensorStatusCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: batteryLevel > 20 ? Colors.black : Colors.red,
+                  color: batteryLevel > 50
+                      ? Colors.green
+                      : (batteryLevel > 20 ? Colors.orange : Colors.red),
                 ),
               ),
             ],
