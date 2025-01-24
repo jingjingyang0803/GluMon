@@ -12,20 +12,54 @@ class DatePickerWidget extends StatefulWidget {
 }
 
 class DatePickerWidgetState extends State<DatePickerWidget> {
-  DateTime _selectedDate = DateTime.now(); // ✅ Set today as default
+  late ScrollController _scrollController;
+  DateTime _selectedDate = DateTime.now(); // ✅ Default to today
 
-  // ✅ Generate dates: 4 days before today + today
+  // ✅ Generate dates: 30 days before today + today
   final List<DateTime> _dates = List.generate(
-    5,
-    (index) => DateTime.now()
-        .subtract(Duration(days: 4 - index)), // Includes past and future dates
+    31,
+    (index) => DateTime.now().subtract(Duration(days: 30 - index)),
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    // Move selected date to center after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToSelected();
+    });
+  }
 
   void _onDateTap(DateTime date) {
     setState(() {
       _selectedDate = date;
     });
-    widget.onDateSelected(date); // Notify parent widget
+    widget.onDateSelected(date);
+    _scrollToSelected(); // Scroll when a new date is selected
+  }
+
+  void _scrollToSelected() {
+    int selectedIndex = _dates.indexWhere((date) =>
+        date.year == _selectedDate.year &&
+        date.month == _selectedDate.month &&
+        date.day == _selectedDate.day);
+
+    if (selectedIndex != -1) {
+      double itemWidth = 60 + 12; // Width + margin (horizontal padding)
+      double screenWidth = MediaQuery.of(context).size.width;
+      double targetScrollOffset =
+          (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
+
+      _scrollController.animateTo(
+        targetScrollOffset.clamp(
+          0.0,
+          _scrollController.position.maxScrollExtent,
+        ),
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -33,12 +67,12 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
     return SizedBox(
       height: 80,
       child: ListView.builder(
+        controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: _dates.length,
         itemBuilder: (context, index) {
           final date = _dates[index];
 
-          // ✅ Ensure today is selected by default
           final isSelected = _selectedDate.year == date.year &&
               _selectedDate.month == date.month &&
               _selectedDate.day == date.day;
@@ -66,11 +100,18 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
                       color: isSelected ? Colors.white : Colors.black,
                     ),
                   ),
-                  SizedBox(height: 4),
                   Text(
                     DateFormat('dd').format(date), // 01, 02...
                     style: TextStyle(
                       fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  Text(
+                    DateFormat('MMM').format(date), // Jan, Feb...
+                    style: TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: isSelected ? Colors.white : Colors.black,
                     ),

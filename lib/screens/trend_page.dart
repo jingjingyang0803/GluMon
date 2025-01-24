@@ -20,7 +20,7 @@ class TrendPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double minY = 50; // 🔹 Set fixed Y min
+    double minY = 0; // 🔹 Set fixed Y min
     double maxY = 200; // 🔹 Set fixed Y max
 
     var minEntry =
