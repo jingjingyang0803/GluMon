@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../screens/glucose_predictor_page.dart';
 import '../screens/home_page.dart';
 import '../screens/settings_page.dart';
 import '../screens/trend_page.dart';
@@ -18,7 +19,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   // List of pages for navigation
   final List<Widget> _pages = [
     HomePage(),
-    TrendPage(),
+    GlucosePredictorPage(),
     SettingsPage(),
     TrendPage(),
     SettingsPage(),
