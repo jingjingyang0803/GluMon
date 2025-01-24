@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../components/avg_glucose_card.dart';
 import '../components/current_glucose_card.dart';
+import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
 
@@ -21,8 +22,12 @@ class _HomePageState extends State<HomePage> {
 
   // Fake!!!
   String userName = "Jingjing";
+
   bool isConnected = false;
   int batteryLevel = 45;
+  double temperature = 36.5; // Fake temperature in °C
+  double humidity = 55.0; // Fake humidity in %
+
   String currentGlucose = "165";
   String glucoseUnit = "mg/dL";
   String glucoseTime = "5 min ago";
@@ -96,7 +101,6 @@ class _HomePageState extends State<HomePage> {
                   Text('Today',
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 20),
 
                   // ✅ Glucose Data Cards
                   Row(
@@ -128,6 +132,15 @@ class _HomePageState extends State<HomePage> {
                     isConnected: isConnected,
                     batteryLevel: batteryLevel,
                   ),
+
+                  SizedBox(height: 20),
+
+                  // ✅ Humidity & Temperature Card
+                  HumidityTemperatureCard(
+                    humidity: humidity,
+                    temperature: temperature,
+                  ),
+
                   Spacer(),
                 ],
               ),
