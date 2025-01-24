@@ -57,16 +57,19 @@ class BottomNavBarState extends State<BottomNavBar> {
         backgroundColor: Colors.white,
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: 'Home'),
+              icon: Icon(Icons.home, size: 38, color: primaryBlue), label: ''),
           BottomNavigationBarItem(
-              icon: Icon(Icons.water_drop_outlined), label: 'Measures'),
+              icon: Icon(Icons.water_drop, size: 38, color: primaryBlue),
+              label: ''),
           BottomNavigationBarItem(
               icon: Icon(Icons.add_circle, size: 60, color: primaryBlue),
               label: ''),
           BottomNavigationBarItem(
-              icon: Icon(Icons.trending_up_outlined), label: 'History'),
+              icon: Icon(Icons.trending_up, size: 38, color: primaryBlue),
+              label: ''),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
+              icon: Icon(Icons.settings, size: 38, color: primaryBlue),
+              label: ''),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: primaryBlue,
