@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../utils/color_utils.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,155 +28,193 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('',
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: primaryTextColor)),
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: primaryTextColor),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle("DATA RETRIEVAL INTERVAL"),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: DropdownButtonFormField<String>(
-                value: selectedInterval,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() => selectedInterval = newValue);
-                  }
-                },
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                ),
-                items: [
-                  DropdownMenuItem(
-                      value: 'Every minute', child: Text('Every minute')),
-                  DropdownMenuItem(
-                      value: 'Every five minutes',
-                      child: Text('Every five minutes')),
-                  DropdownMenuItem(
-                      value: 'Custom', child: Text('Custom Interval')),
-                ],
-              ),
-            ),
-            if (selectedInterval == 'Custom')
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextField(
-                  controller: customIntervalController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Enter interval in minutes',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                ),
-              ),
-            _buildSectionTitle("ALERT LIMITS"),
-            _buildSliderRow("Very Low", veryLow, 40, 100,
-                (value) => setState(() => veryLow = value)),
-            _buildSliderRow("Very High", veryHigh, 150, 400,
-                (value) => setState(() => veryHigh = value)),
-            _buildSectionTitle("QUICK CHANGES"),
-            _buildSliderRow("Big Drop", bigDrop, 5, 50,
-                (value) => setState(() => bigDrop = value)),
-            _buildSliderRow("Big Rise", bigRise, 10, 60,
-                (value) => setState(() => bigRise = value)),
-            _buildSectionTitle("ALERT SETTINGS"),
-            _buildSwitchTile("Trigger Vibration", enableVibration,
-                (value) => setState(() => enableVibration = value)),
-            _buildSwitchTile("Trigger Phone Call Alert", enableCallAlert,
-                (value) => setState(() => enableCallAlert = value)),
-            _buildSwitchTile("Trigger Alarm", enableAlarm,
-                (value) => setState(() => enableAlarm = value)),
-            _buildSectionTitle("NOTIFICATION SETTINGS"),
-            _buildSwitchTile("Disable all notifications", muteNotifications,
-                (value) => setState(() => muteNotifications = value)),
-            if (muteNotifications)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: DropdownButtonFormField<Duration>(
-                  value: muteDuration,
-                  onChanged: (Duration? newValue) {
-                    if (newValue != null) {
-                      setState(() => muteDuration = newValue);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                        value: Duration(minutes: 30),
-                        child: Text('30 minutes')),
-                    DropdownMenuItem(
-                        value: Duration(hours: 1), child: Text('1 hour')),
-                    DropdownMenuItem(
-                        value: Duration(hours: 2), child: Text('2 hours')),
-                  ],
-                ),
-              ),
+            _buildSettingTile(
+                "Data Retrieval Interval", selectedInterval, Icons.access_time),
+            _buildAlertLimitsTile(),
+            _buildSettingTile("Alert Settings", "", Icons.notifications_active),
+            _buildToggleTile("Trigger Vibration", enableVibration,
+                (val) => setState(() => enableVibration = val)),
+            _buildToggleTile("Trigger Phone Call Alert", enableCallAlert,
+                (val) => setState(() => enableCallAlert = val)),
+            _buildToggleTile("Trigger Alarm", enableAlarm,
+                (val) => setState(() => enableAlarm = val)),
+            _buildToggleTile("Disable all notifications", muteNotifications,
+                (val) => setState(() => muteNotifications = val)),
+            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-            fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+  Widget _buildAlertLimitsTile() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
-    );
-  }
-
-  Widget _buildSliderRow(String title, double value, double min, double max,
-      Function(double) onChanged) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 2,
-            child: Text(title, style: TextStyle(fontSize: 16)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Alert Limits",
+                style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: primaryTextColor),
+              ),
+              Icon(Icons.warning, color: primaryTextColor),
+            ],
           ),
-          Expanded(
-            flex: 5,
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: ((max - min) / 5).toInt(),
-              label: value.toInt().toString(),
-              onChanged: onChanged,
-            ),
-          ),
-          SizedBox(width: 10),
-          Text(value.toInt().toString(), style: TextStyle(color: Colors.grey)),
+          SizedBox(height: 12),
+          _buildIndentedSliderTile("Very Low", veryLow, 40, 100,
+              (val) => setState(() => veryLow = val)),
+          _buildIndentedSliderTile("Very High", veryHigh, 150, 400,
+              (val) => setState(() => veryHigh = val)),
+          _buildIndentedSliderTile("Big Drop", bigDrop, 5, 50,
+              (val) => setState(() => bigDrop = val)),
+          _buildIndentedSliderTile("Big Rise", bigRise, 10, 60,
+              (val) => setState(() => bigRise = val)),
         ],
       ),
     );
   }
 
-  Widget _buildSwitchTile(String title, bool value, Function(bool) onChanged) {
+  Widget _buildSettingTile(String title, String subtitle, IconData icon) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: TextStyle(fontSize: 16)),
-          Switch(value: value, onChanged: onChanged),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: primaryTextColor)),
+              if (subtitle.isNotEmpty)
+                Text(subtitle,
+                    style:
+                        GoogleFonts.poppins(fontSize: 14, color: Colors.grey)),
+            ],
+          ),
+          Icon(icon, color: primaryTextColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleTile(String title, bool value, Function(bool) onChanged) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title,
+              style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: primaryTextColor)),
+          Container(
+            decoration: BoxDecoration(
+              color: value ? primaryTextColor : Colors.grey[300],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            width: 50,
+            height: 30,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  left: value ? 20 : 0,
+                  child: GestureDetector(
+                    onTap: () => onChanged(!value),
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(color: primaryTextColor, width: 2),
+                      ),
+                      child: value
+                          ? Icon(Icons.check, color: primaryTextColor, size: 18)
+                          : Container(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIndentedSliderTile(String title, double value, double min,
+      double max, Function(double) onChanged) {
+    return Padding(
+      padding: EdgeInsets.only(left: 32.0, right: 16.0, top: 8.0, bottom: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: primaryTextColor)),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4.0,
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.0),
+              overlayShape: RoundSliderOverlayShape(overlayRadius: 16.0),
+              activeTrackColor: primaryTextColor,
+              inactiveTrackColor: Colors.grey[300],
+              thumbColor: primaryTextColor,
+              overlayColor: Colors.blue.withAlpha(20),
+              tickMarkShape: null, // Remove tick marks
+            ),
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              label: value.toInt().toString(),
+              onChanged: onChanged,
+            ),
+          ),
         ],
       ),
     );
