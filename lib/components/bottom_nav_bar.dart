@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/screens/bluetooth_page.dart';
 
 import '../screens/glucose_predictor_page.dart';
 import '../screens/home_page.dart';
@@ -20,30 +21,12 @@ class BottomNavBarState extends State<BottomNavBar> {
   final List<Widget> _pages = [
     HomePage(),
     GlucosePredictorPage(),
-    SettingsPage(),
+    BluetoothPage(),
     TrendPage(),
     SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
-    if (index == 2) {
-      // Handle special case for the middle button (e.g., show a modal)
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Pairing the sensor...'),
-          content: Text('Almost done!'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Close'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _selectedIndex = index;
     });

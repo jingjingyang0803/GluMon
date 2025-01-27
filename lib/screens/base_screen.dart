@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/screens/bluetooth_page.dart';
+import 'package:glu_mon/screens/glucose_predictor_page.dart';
 import 'package:glu_mon/screens/settings_page.dart';
 import 'package:glu_mon/screens/trend_page.dart';
 
@@ -18,8 +20,8 @@ class BaseScreenState extends State<BaseScreen> {
   // List of pages for navigation
   final List<Widget> _pages = [
     HomePage(),
-    Placeholder(),
-    Placeholder(),
+    GlucosePredictorPage(),
+    BluetoothPage(),
     TrendPage(),
     SettingsPage(),
   ];
