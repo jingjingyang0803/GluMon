@@ -44,8 +44,9 @@ class BluetoothPageState extends State<BluetoothPage> {
       setState(() => isScanning = true);
 
       // Check if Bluetooth is available
-      if (!await bt_ble.FlutterBluePlus.isAvailable ||
-          !await bt_ble.FlutterBluePlus.isOn) {
+      if (!await bt_ble.FlutterBluePlus.isSupported ||
+          (await bt_ble.FlutterBluePlus.adapterState.first) !=
+              bt_ble.BluetoothAdapterState.on) {
         print("❌ Bluetooth is OFF. Cannot start scanning.");
         setState(() => isScanning = false);
         return;
@@ -224,6 +225,7 @@ class BluetoothPageState extends State<BluetoothPage> {
       String title, List devices, Function connectFunction) {
     return Card(
       elevation: 4,
+      color: Colors.white, // Set the card background color to white
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -280,13 +282,14 @@ class BluetoothPageState extends State<BluetoothPage> {
   Widget _buildConnectionStatusCard() {
     return Card(
       elevation: 4,
+      color: Colors.white, // Set the card background color to white
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Icon(
                   (isClassicConnected || isBleConnected)
