@@ -18,7 +18,7 @@ class GlucoseRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 50,
+          width: 60,
           child: Text(
             value,
             textAlign: TextAlign.right, // Ensures proper alignment
