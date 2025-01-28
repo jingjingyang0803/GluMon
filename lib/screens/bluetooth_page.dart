@@ -29,6 +29,7 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   bool isClassicConnected = false;
   bool isBleConnected = false;
+  bool isScanning = false;
   String receivedData = "No data yet";
 
   @override
@@ -39,36 +40,52 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Scan for Bluetooth devices**
   void _scanDevices() async {
-    // Scan for Bluetooth Classic devices (SPP)
-    if (Platform.isAndroid) {
-      List<bt_serial.BluetoothDevice> bondedDevices =
-          await bluetooth.getBondedDevices();
-      setState(() {
-        classicDevices = bondedDevices;
+    try {
+      setState(() => isScanning = true);
+
+      // Check if Bluetooth is available
+      if (!await bt_ble.FlutterBluePlus.isAvailable ||
+          !await bt_ble.FlutterBluePlus.isOn) {
+        print("❌ Bluetooth is OFF. Cannot start scanning.");
+        setState(() => isScanning = false);
+        return;
+      }
+
+      // Stop any ongoing scan
+      await bt_ble.FlutterBluePlus.stopScan();
+      await Future.delayed(const Duration(milliseconds: 500)); // Small delay
+
+      // Scan for Classic Bluetooth devices (SPP)
+      if (Platform.isAndroid) {
+        List<bt_serial.BluetoothDevice> bondedDevices =
+            await bluetooth.getBondedDevices();
+        if (mounted) {
+          setState(() => classicDevices = bondedDevices);
+        }
+      }
+
+      // Start BLE scanning with timeout
+      bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
+
+      // Listen for BLE scan results
+      bt_ble.FlutterBluePlus.scanResults
+          .listen((List<bt_ble.ScanResult> results) {
+        if (mounted && bleDevices.length != results.length) {
+          setState(() => bleDevices = results);
+        }
       });
+
+      print("🔍 Scanning for Bluetooth devices...");
+    } catch (e) {
+      print("❌ Error scanning: $e");
+      setState(() => isScanning = false);
     }
 
-    // Scan for BLE devices (ESP32 BLE, Phones, MacBooks, etc.)
-    bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
-
-    bt_ble.FlutterBluePlus.scanResults
-        .listen((List<bt_ble.ScanResult> results) {
-      setState(() {
-        bleDevices = results;
-      });
-
-      // Debug: Print all scanned BLE devices
-      for (var result in results) {
-        print(
-            "🔍 BLE Device Found: ${result.device.remoteId}, Name: ${result.advertisementData.localName}");
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() => isScanning = false);
       }
     });
-
-    // Debug: Print all Classic Bluetooth devices
-    for (var device in classicDevices) {
-      print(
-          "🔍 Classic Device Found: ${device.name}, Address: ${device.address}");
-    }
   }
 
   /// **Connect to Classic Bluetooth (SPP)**
@@ -83,14 +100,18 @@ class BluetoothPageState extends State<BluetoothPage> {
 
       classicConnection!.input!.listen((Uint8List data) {
         String decodedData = utf8.decode(data);
-        setState(() {
-          receivedData = decodedData;
-        });
+        if (mounted) {
+          setState(() {
+            receivedData = decodedData;
+          });
+        }
       });
     } catch (e) {
-      setState(() {
-        isClassicConnected = false;
-      });
+      if (mounted) {
+        setState(() {
+          isClassicConnected = false;
+        });
+      }
     }
   }
 
@@ -110,17 +131,21 @@ class BluetoothPageState extends State<BluetoothPage> {
             await characteristic.setNotifyValue(true);
             characteristic.lastValueStream.listen((value) {
               String decodedData = utf8.decode(value);
-              setState(() {
-                receivedData = decodedData;
-              });
+              if (mounted) {
+                setState(() {
+                  receivedData = decodedData;
+                });
+              }
             });
           }
         }
       }
     } catch (e) {
-      setState(() {
-        isBleConnected = false;
-      });
+      if (mounted) {
+        setState(() {
+          isBleConnected = false;
+        });
+      }
     }
   }
 
@@ -147,6 +172,7 @@ class BluetoothPageState extends State<BluetoothPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -164,6 +190,8 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            if (isScanning)
+              const Center(child: CircularProgressIndicator()), // Fix spinner
             _buildDeviceCard("Classic Bluetooth (SPP) Devices", classicDevices,
                 _connectToClassicDevice),
             const SizedBox(height: 10),
@@ -173,6 +201,11 @@ class BluetoothPageState extends State<BluetoothPage> {
             _buildConnectionStatusCard(),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _scanDevices,
+        backgroundColor: primaryDarkBlue,
+        child: const Icon(Icons.refresh),
       ),
     );
   }
@@ -207,26 +240,16 @@ class BluetoothPageState extends State<BluetoothPage> {
                     itemCount: devices.length,
                     itemBuilder: (context, index) {
                       var device = devices[index];
-                      return Card(
-                        elevation: 2,
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        child: ListTile(
-                          leading: Icon(Icons.bluetooth,
-                              color: primaryDarkBlue, size: 28),
-                          title: Text(device.name.isNotEmpty
-                              ? device.name
-                              : "Unknown Device"),
-                          subtitle: Text(device.id.toString()),
-                          trailing: ElevatedButton(
-                            onPressed: () => connectFunction(device),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryDarkBlue,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text("Connect"),
-                          ),
+                      return ListTile(
+                        leading: Icon(Icons.bluetooth,
+                            color: primaryDarkBlue, size: 28),
+                        title: Text(device.name.isNotEmpty
+                            ? device.name
+                            : "Unknown Device"),
+                        subtitle: Text(device.id.toString()),
+                        trailing: ElevatedButton(
+                          onPressed: () => connectFunction(device),
+                          child: const Text("Connect"),
                         ),
                       );
                     }),

@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSBluetoothAlwaysUsageDescription</key>
+    <string>This app requires Bluetooth to connect to devices.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>This app uses Bluetooth to communicate with external devices.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Bluetooth is required to connect to sensors.</string>
+
 </dict>
 </plist>
