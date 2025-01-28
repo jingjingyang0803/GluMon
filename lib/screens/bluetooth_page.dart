@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble; // BLE
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
+    as bt_serial; // Classic Bluetooth
 import 'package:google_fonts/google_fonts.dart';
 
-import '../utils/color_utils.dart'; // Ensure you have this file for theme colors
+import '../utils/color_utils.dart';
 
 class BluetoothPage extends StatefulWidget {
   const BluetoothPage({super.key});
@@ -15,12 +18,18 @@ class BluetoothPage extends StatefulWidget {
 }
 
 class BluetoothPageState extends State<BluetoothPage> {
-  FlutterBluetoothSerial bluetooth = FlutterBluetoothSerial.instance;
-  BluetoothConnection? connection;
-  List<BluetoothDevice> devices = [];
-  bool isConnected = false;
+  bt_serial.FlutterBluetoothSerial bluetooth =
+      bt_serial.FlutterBluetoothSerial.instance;
+  bt_serial.BluetoothConnection? classicConnection;
+  List<bt_serial.BluetoothDevice> classicDevices = [];
+
+  List<bt_ble.ScanResult> bleDevices = [];
+  bt_serial.BluetoothDevice? selectedClassicDevice;
+  bt_ble.BluetoothDevice? selectedBleDevice;
+
+  bool isClassicConnected = false;
+  bool isBleConnected = false;
   String receivedData = "No data yet";
-  BluetoothDevice? selectedDevice;
 
   @override
   void initState() {
@@ -30,24 +39,40 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Scan for Bluetooth devices**
   void _scanDevices() async {
-    List<BluetoothDevice> bondedDevices = await bluetooth.getBondedDevices();
-    setState(() {
-      devices = bondedDevices;
+    if (Platform.isAndroid) {
+      // Scan for Bluetooth Classic devices
+      List<bt_serial.BluetoothDevice> bondedDevices =
+          await bluetooth.getBondedDevices();
+      setState(() {
+        classicDevices = bondedDevices;
+      });
+    }
+
+    // Scan for BLE devices
+    bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
+
+    // Correct way to listen to scan results
+    bt_ble.FlutterBluePlus.scanResults
+        .listen((List<bt_ble.ScanResult> results) {
+      setState(() {
+        bleDevices = results;
+      });
     });
   }
 
-  /// **Connect to selected device**
-  Future<void> _connectToDevice(BluetoothDevice device) async {
+  /// **Connect to Classic Bluetooth (SPP)**
+  Future<void> _connectToClassicDevice(bt_serial.BluetoothDevice device) async {
     try {
-      connection = await BluetoothConnection.toAddress(device.address);
+      classicConnection =
+          await bt_serial.BluetoothConnection.toAddress(device.address);
       setState(() {
-        isConnected = true;
-        selectedDevice = device;
+        isClassicConnected = true;
+        selectedClassicDevice = device;
       });
 
-      print("✅ Connected to ${device.name}");
+      print("✅ Connected to ${device.name} via Bluetooth Classic");
 
-      connection!.input!.listen((Uint8List data) {
+      classicConnection!.input!.listen((Uint8List data) {
         String decodedData = utf8.decode(data);
         print("📡 Received Data: $decodedData");
 
@@ -58,29 +83,77 @@ class BluetoothPageState extends State<BluetoothPage> {
     } catch (e) {
       print("❌ Error connecting: $e");
       setState(() {
-        isConnected = false;
+        isClassicConnected = false;
       });
     }
   }
 
-  /// **Disconnect Bluetooth**
-  void _disconnect() {
-    if (connection != null) {
-      connection!.finish();
+  /// **Connect to BLE Device**
+  Future<void> _connectToBleDevice(bt_ble.BluetoothDevice device) async {
+    try {
+      await device.connect();
       setState(() {
-        isConnected = false;
-        selectedDevice = null;
+        isBleConnected = true;
+        selectedBleDevice = device;
       });
-      print("🔌 Disconnected");
+
+      print("✅ Connected to ${device.platformName} via BLE");
+
+      // Subscribe to a characteristic (Assuming ESP32/Arduino has a notify characteristic)
+      var services = await device.discoverServices();
+      for (var service in services) {
+        for (var characteristic in service.characteristics) {
+          if (characteristic.properties.notify) {
+            await characteristic.setNotifyValue(true);
+            characteristic.lastValueStream.listen((value) {
+              String decodedData = utf8.decode(value);
+              print("📡 Received Data from BLE: $decodedData");
+
+              setState(() {
+                receivedData = decodedData;
+              });
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print("❌ Error connecting to BLE: $e");
+      setState(() {
+        isBleConnected = false;
+      });
+    }
+  }
+
+  /// **Disconnect Bluetooth Classic**
+  void _disconnectClassic() {
+    if (classicConnection != null) {
+      classicConnection!.finish();
+      setState(() {
+        isClassicConnected = false;
+        selectedClassicDevice = null;
+      });
+      print("🔌 Disconnected from Classic Bluetooth");
+    }
+  }
+
+  /// **Disconnect BLE**
+  void _disconnectBle() {
+    if (selectedBleDevice != null) {
+      selectedBleDevice!.disconnect();
+      setState(() {
+        isBleConnected = false;
+        selectedBleDevice = null;
+      });
+      print("🔌 Disconnected from BLE");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Match Settings Page background
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('',
+        title: Text('Bluetooth',
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -93,8 +166,11 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
         child: Column(
           children: [
-            _buildSectionTitle("Available Devices"),
-            _buildDeviceList(),
+            _buildSectionTitle("Classic Bluetooth (SPP) Devices"),
+            _buildDeviceList(classicDevices, _connectToClassicDevice),
+            _buildSectionTitle("BLE Devices"),
+            _buildDeviceList(
+                bleDevices.map((r) => r.device).toList(), _connectToBleDevice),
             _buildSectionTitle("Connection Status"),
             _buildConnectionStatus(),
             const SizedBox(height: 20),
@@ -117,49 +193,37 @@ class BluetoothPageState extends State<BluetoothPage> {
   }
 
   /// **Device List UI**
-  Widget _buildDeviceList() {
-    return _buildCardTile(
-      title: "Select a Device to Connect",
-      icon: Icons.bluetooth,
-      child: devices.isEmpty
-          ? Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                "No devices found",
-                style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            )
-          : Column(
-              children: devices.map((device) {
-                return ListTile(
-                  leading:
-                      Icon(Icons.bluetooth, color: primaryDarkBlue, size: 28),
-                  title: Text(device.name ?? "Unknown Device",
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                  subtitle: Text(device.address),
-                  trailing: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryDarkBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: () => _connectToDevice(device),
-                    child: const Text("Connect"),
-                  ),
-                );
-              }).toList(),
-            ),
-    );
+  Widget _buildDeviceList(List devices, Function connectFunction) {
+    return devices.isEmpty
+        ? const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text("No devices found"),
+          )
+        : Column(
+            children: devices.map((device) {
+              return ListTile(
+                leading:
+                    Icon(Icons.bluetooth, color: primaryDarkBlue, size: 28),
+                title: Text(
+                    device.name.isNotEmpty ? device.name : "Unknown Device"),
+                subtitle: Text(device.id.toString()),
+                trailing: ElevatedButton(
+                  onPressed: () => connectFunction(device),
+                  child: const Text("Connect"),
+                ),
+              );
+            }).toList(),
+          );
   }
 
   /// **Connection Status UI**
   Widget _buildConnectionStatus() {
     return _buildCardTile(
       title: "Current Connection",
-      icon: isConnected ? Icons.bluetooth_connected : Icons.bluetooth_disabled,
-      child: isConnected
+      icon: (isClassicConnected || isBleConnected)
+          ? Icons.bluetooth_connected
+          : Icons.bluetooth_disabled,
+      child: (isClassicConnected || isBleConnected)
           ? Column(
               children: [
                 Row(
@@ -169,7 +233,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                         color: Colors.green, size: 30),
                     const SizedBox(width: 10),
                     Text(
-                      "Connected to: ${selectedDevice!.name}",
+                      "Connected to: ${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName}",
                       style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -186,7 +250,8 @@ class BluetoothPageState extends State<BluetoothPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _disconnect,
+                  onPressed:
+                      isClassicConnected ? _disconnectClassic : _disconnectBle,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     shape: RoundedRectangleBorder(
@@ -225,7 +290,7 @@ class BluetoothPageState extends State<BluetoothPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             spreadRadius: 2,
           ),
