@@ -177,7 +177,7 @@ class BluetoothPageState extends State<BluetoothPage> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text('Bluetooth',
+        title: Text('',
             style: GoogleFonts.poppins(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -190,15 +190,24 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            if (isScanning)
-              const Center(child: CircularProgressIndicator()), // Fix spinner
-            _buildDeviceCard("Classic Bluetooth (SPP) Devices", classicDevices,
-                _connectToClassicDevice),
-            const SizedBox(height: 10),
-            _buildDeviceCard("BLE Devices",
-                bleDevices.map((r) => r.device).toList(), _connectToBleDevice),
-            const SizedBox(height: 10),
-            _buildConnectionStatusCard(),
+            if (isScanning) const Center(child: CircularProgressIndicator()),
+
+            // Use Expanded to prevent overflow
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildDeviceCard("Classic Bluetooth (SPP) Devices",
+                      classicDevices, _connectToClassicDevice),
+                  const SizedBox(height: 10),
+                  _buildDeviceCard(
+                      "BLE Devices",
+                      bleDevices.map((r) => r.device).toList(),
+                      _connectToBleDevice),
+                  const SizedBox(height: 10),
+                  _buildConnectionStatusCard(),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -221,38 +230,46 @@ class BluetoothPageState extends State<BluetoothPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black)),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
             const SizedBox(height: 10),
-            devices.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(
-                        child: Text("No devices found",
-                            style: TextStyle(color: Colors.grey))),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: devices.length,
-                    itemBuilder: (context, index) {
-                      var device = devices[index];
-                      return ListTile(
-                        leading: Icon(Icons.bluetooth,
-                            color: primaryDarkBlue, size: 28),
-                        title: Text(device.name.isNotEmpty
-                            ? device.name
-                            : "Unknown Device"),
-                        subtitle: Text(device.id.toString()),
-                        trailing: ElevatedButton(
-                          onPressed: () => connectFunction(device),
-                          child: const Text("Connect"),
-                        ),
-                      );
-                    }),
+
+            // Wrapping the list inside a SizedBox to limit height and enable scrolling
+            SizedBox(
+              height:
+                  devices.isEmpty ? 20 : 200, // Adjust this height as needed
+              child: devices.isEmpty
+                  ? const Center(
+                      child: Text("No devices found",
+                          style: TextStyle(color: Colors.grey)),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics:
+                          const AlwaysScrollableScrollPhysics(), // Enables scrolling
+                      itemCount: devices.length,
+                      itemBuilder: (context, index) {
+                        var device = devices[index];
+                        return ListTile(
+                          leading: Icon(Icons.bluetooth,
+                              color: primaryDarkBlue, size: 28),
+                          title: Text(device.name.isNotEmpty
+                              ? device.name
+                              : "Unknown Device"),
+                          subtitle: Text(device.id.toString()),
+                          trailing: ElevatedButton(
+                            onPressed: () => connectFunction(device),
+                            child: const Text("Connect"),
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
