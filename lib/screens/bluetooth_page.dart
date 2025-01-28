@@ -57,22 +57,55 @@ class BluetoothPageState extends State<BluetoothPage> {
       await Future.delayed(const Duration(milliseconds: 500)); // Small delay
 
       // Scan for Classic Bluetooth devices (SPP)
-      if (Platform.isAndroid) {
+      if (Platform.isAndroid || Platform.isMacOS) {
+        // Allow MacBook for testing
         List<bt_serial.BluetoothDevice> bondedDevices =
             await bluetooth.getBondedDevices();
+        for (var device in bondedDevices) {
+          print("Found Classic Device: ${device.name} | ${device.address}");
+        }
+        List<bt_serial.BluetoothDevice> filteredDevices =
+            bondedDevices.where((device) {
+          return device.name!.toLowerCase().contains('esp') ||
+              device.name!.toLowerCase().contains('arduino') ||
+              device.name!.toLowerCase().contains('hc-05') ||
+              device.name!
+                  .toLowerCase()
+                  .contains('macbook'); // Allow MacBook for testing
+        }).toList();
+
         if (mounted) {
-          setState(() => classicDevices = bondedDevices);
+          setState(() => classicDevices = filteredDevices);
         }
       }
 
-      // Start BLE scanning with timeout
+      // Start BLE scanning with filtering
       bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
 
-      // Listen for BLE scan results
+      // Listen for BLE scan results and filter microcontrollers
       bt_ble.FlutterBluePlus.scanResults
           .listen((List<bt_ble.ScanResult> results) {
-        if (mounted && bleDevices.length != results.length) {
-          setState(() => bleDevices = results);
+        for (var result in results) {
+          print(
+              "Found BLE Device: ${result.device.platformName} | ${result.device.remoteId} | Services: ${result.advertisementData.serviceUuids}");
+        }
+        List<bt_ble.ScanResult> filteredResults = results.where((r) {
+          return r.device.platformName.toLowerCase().contains('esp') ||
+              r.device.platformName.toLowerCase().contains('arduino') ||
+              r.device.platformName.toLowerCase().contains('hc-08') ||
+              r.device.platformName
+                  .toLowerCase()
+                  .contains('macbook') || // Allow MacBook
+              (r.advertisementData.serviceUuids
+                      .isNotEmpty && // Check Service UUIDs
+                  r.advertisementData.serviceUuids
+                      .map((uuid) => uuid.toString())
+                      .contains(
+                          "0000ffe0-0000-1000-8000-00805f9b34fb")); // Convert Guid to String
+        }).toList();
+
+        if (mounted) {
+          setState(() => bleDevices = filteredResults);
         }
       });
 
@@ -302,7 +335,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  "Connected to: ${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName ?? "None"}",
+                  "Connected to: \n${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName ?? "None"}",
                   style: GoogleFonts.poppins(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
