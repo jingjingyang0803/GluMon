@@ -22,8 +22,8 @@ class BluetoothPageState extends State<BluetoothPage> {
       bt_serial.FlutterBluetoothSerial.instance;
   bt_serial.BluetoothConnection? classicConnection;
   List<bt_serial.BluetoothDevice> classicDevices = [];
-
   List<bt_ble.ScanResult> bleDevices = [];
+
   bt_serial.BluetoothDevice? selectedClassicDevice;
   bt_ble.BluetoothDevice? selectedBleDevice;
 
@@ -39,8 +39,8 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Scan for Bluetooth devices**
   void _scanDevices() async {
+    // Scan for Bluetooth Classic devices (SPP)
     if (Platform.isAndroid) {
-      // Scan for Bluetooth Classic devices
       List<bt_serial.BluetoothDevice> bondedDevices =
           await bluetooth.getBondedDevices();
       setState(() {
@@ -48,16 +48,27 @@ class BluetoothPageState extends State<BluetoothPage> {
       });
     }
 
-    // Scan for BLE devices
+    // Scan for BLE devices (ESP32 BLE, Phones, MacBooks, etc.)
     bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
 
-    // Correct way to listen to scan results
     bt_ble.FlutterBluePlus.scanResults
         .listen((List<bt_ble.ScanResult> results) {
       setState(() {
         bleDevices = results;
       });
+
+      // Debug: Print all scanned BLE devices
+      for (var result in results) {
+        print(
+            "🔍 BLE Device Found: ${result.device.remoteId}, Name: ${result.advertisementData.localName}");
+      }
     });
+
+    // Debug: Print all Classic Bluetooth devices
+    for (var device in classicDevices) {
+      print(
+          "🔍 Classic Device Found: ${device.name}, Address: ${device.address}");
+    }
   }
 
   /// **Connect to Classic Bluetooth (SPP)**
@@ -70,18 +81,13 @@ class BluetoothPageState extends State<BluetoothPage> {
         selectedClassicDevice = device;
       });
 
-      print("✅ Connected to ${device.name} via Bluetooth Classic");
-
       classicConnection!.input!.listen((Uint8List data) {
         String decodedData = utf8.decode(data);
-        print("📡 Received Data: $decodedData");
-
         setState(() {
           receivedData = decodedData;
         });
       });
     } catch (e) {
-      print("❌ Error connecting: $e");
       setState(() {
         isClassicConnected = false;
       });
@@ -97,9 +103,6 @@ class BluetoothPageState extends State<BluetoothPage> {
         selectedBleDevice = device;
       });
 
-      print("✅ Connected to ${device.platformName} via BLE");
-
-      // Subscribe to a characteristic (Assuming ESP32/Arduino has a notify characteristic)
       var services = await device.discoverServices();
       for (var service in services) {
         for (var characteristic in service.characteristics) {
@@ -107,8 +110,6 @@ class BluetoothPageState extends State<BluetoothPage> {
             await characteristic.setNotifyValue(true);
             characteristic.lastValueStream.listen((value) {
               String decodedData = utf8.decode(value);
-              print("📡 Received Data from BLE: $decodedData");
-
               setState(() {
                 receivedData = decodedData;
               });
@@ -117,14 +118,13 @@ class BluetoothPageState extends State<BluetoothPage> {
         }
       }
     } catch (e) {
-      print("❌ Error connecting to BLE: $e");
       setState(() {
         isBleConnected = false;
       });
     }
   }
 
-  /// **Disconnect Bluetooth Classic**
+  /// **Disconnect Classic Bluetooth**
   void _disconnectClassic() {
     if (classicConnection != null) {
       classicConnection!.finish();
@@ -132,7 +132,6 @@ class BluetoothPageState extends State<BluetoothPage> {
         isClassicConnected = false;
         selectedClassicDevice = null;
       });
-      print("🔌 Disconnected from Classic Bluetooth");
     }
   }
 
@@ -144,7 +143,6 @@ class BluetoothPageState extends State<BluetoothPage> {
         isBleConnected = false;
         selectedBleDevice = null;
       });
-      print("🔌 Disconnected from BLE");
     }
   }
 
@@ -162,157 +160,127 @@ class BluetoothPageState extends State<BluetoothPage> {
         elevation: 0,
         iconTheme: IconThemeData(color: primaryDarkBlue),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildSectionTitle("Classic Bluetooth (SPP) Devices"),
-            _buildDeviceList(classicDevices, _connectToClassicDevice),
-            _buildSectionTitle("BLE Devices"),
-            _buildDeviceList(
+            _buildDeviceCard("Classic Bluetooth (SPP) Devices", classicDevices,
+                _connectToClassicDevice),
+            const SizedBox(height: 10),
+            _buildDeviceCard("BLE Devices",
                 bleDevices.map((r) => r.device).toList(), _connectToBleDevice),
-            _buildSectionTitle("Connection Status"),
-            _buildConnectionStatus(),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            _buildConnectionStatusCard(),
           ],
         ),
       ),
     );
   }
 
-  /// **Section Title**
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0, left: 8.0),
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+  /// **Device List Wrapped in a Card**
+  Widget _buildDeviceCard(
+      String title, List devices, Function connectFunction) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black)),
+            const SizedBox(height: 10),
+            devices.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                        child: Text("No devices found",
+                            style: TextStyle(color: Colors.grey))),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: devices.length,
+                    itemBuilder: (context, index) {
+                      var device = devices[index];
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        child: ListTile(
+                          leading: Icon(Icons.bluetooth,
+                              color: primaryDarkBlue, size: 28),
+                          title: Text(device.name.isNotEmpty
+                              ? device.name
+                              : "Unknown Device"),
+                          subtitle: Text(device.id.toString()),
+                          trailing: ElevatedButton(
+                            onPressed: () => connectFunction(device),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryDarkBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text("Connect"),
+                          ),
+                        ),
+                      );
+                    }),
+          ],
+        ),
       ),
     );
   }
 
-  /// **Device List UI**
-  Widget _buildDeviceList(List devices, Function connectFunction) {
-    return devices.isEmpty
-        ? const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text("No devices found"),
-          )
-        : Column(
-            children: devices.map((device) {
-              return ListTile(
-                leading:
-                    Icon(Icons.bluetooth, color: primaryDarkBlue, size: 28),
-                title: Text(
-                    device.name.isNotEmpty ? device.name : "Unknown Device"),
-                subtitle: Text(device.id.toString()),
-                trailing: ElevatedButton(
-                  onPressed: () => connectFunction(device),
-                  child: const Text("Connect"),
-                ),
-              );
-            }).toList(),
-          );
-  }
-
-  /// **Connection Status UI**
-  Widget _buildConnectionStatus() {
-    return _buildCardTile(
-      title: "Current Connection",
-      icon: (isClassicConnected || isBleConnected)
-          ? Icons.bluetooth_connected
-          : Icons.bluetooth_disabled,
-      child: (isClassicConnected || isBleConnected)
-          ? Column(
+  /// **Connection Status Wrapped in a Card**
+  Widget _buildConnectionStatusCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.bluetooth_connected,
-                        color: Colors.green, size: 30),
-                    const SizedBox(width: 10),
-                    Text(
-                      "Connected to: ${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName}",
-                      style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green),
-                    ),
-                  ],
+                Icon(
+                  (isClassicConnected || isBleConnected)
+                      ? Icons.bluetooth_connected
+                      : Icons.bluetooth_disabled,
+                  color: (isClassicConnected || isBleConnected)
+                      ? Colors.green
+                      : Colors.red,
+                  size: 30,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(width: 10),
                 Text(
-                  "Received Data: $receivedData",
+                  "Connected to: ${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName ?? "None"}",
                   style: GoogleFonts.poppins(
-                      fontSize: 14, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed:
-                      isClassicConnected ? _disconnectClassic : _disconnectBle,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Text("Disconnect", style: TextStyle(fontSize: 16)),
-                  ),
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                "Not connected",
-                style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
             ),
-    );
-  }
-
-  /// **Reusable Card UI**
-  Widget _buildCardTile(
-      {required String title, required IconData icon, required Widget child}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: primaryDarkBlue, size: 24),
-              const SizedBox(width: 10),
-              Text(title,
-                  style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          child,
-        ],
+            const SizedBox(height: 10),
+            Text("Received Data: $receivedData",
+                style: GoogleFonts.poppins(
+                    fontSize: 14, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 20),
+            if (isClassicConnected || isBleConnected)
+              ElevatedButton(
+                onPressed:
+                    isClassicConnected ? _disconnectClassic : _disconnectBle,
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                child: const Text("Disconnect"),
+              ),
+          ],
+        ),
       ),
     );
   }
