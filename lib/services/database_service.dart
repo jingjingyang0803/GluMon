@@ -38,9 +38,15 @@ class DatabaseService {
     await db.execute('''
       CREATE TABLE settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        alert_high REAL NOT NULL,
-        alert_low REAL NOT NULL,
-        retrieval_interval INTEGER NOT NULL
+        enableVibration INTEGER,
+        enableCallAlert INTEGER,
+        enableAlarm INTEGER,
+        muteNotifications INTEGER,
+        selectedInterval INTEGER,
+        veryLow REAL,
+        veryHigh REAL,
+        bigDrop REAL,
+        bigRise REAL
       )
     ''');
 
@@ -52,6 +58,61 @@ class DatabaseService {
         connection_status TEXT NOT NULL
       )
     ''');
+  }
+
+// ✅ Get settings with default fallback
+  Future<Map<String, dynamic>> getSettings() async {
+    final db = await database;
+    final result = await db.query('settings', where: 'id = ?', whereArgs: [1]);
+
+    if (result.isNotEmpty) {
+      return result.first;
+    } else {
+      // 🔹 Return default settings if table is empty
+      return {
+        'enableVibration': 0,
+        'enableCallAlert': 0,
+        'enableAlarm': 0,
+        'muteNotifications': 1,
+        'selectedInterval': 15,
+        'veryLow': 60.0,
+        'veryHigh': 200.0,
+        'bigDrop': 15.0,
+        'bigRise': 25.0,
+      };
+    }
+  }
+
+// ✅ Insert or Update settings
+  Future<int> updateSettings({
+    required bool enableVibration,
+    required bool enableCallAlert,
+    required bool enableAlarm,
+    required bool muteNotifications,
+    required int selectedInterval,
+    required double veryLow,
+    required double veryHigh,
+    required double bigDrop,
+    required double bigRise,
+  }) async {
+    final db = await database;
+
+    return await db.insert(
+      'settings',
+      {
+        'id': 1, // Ensure there's only one row for settings
+        'enableVibration': enableVibration ? 1 : 0,
+        'enableCallAlert': enableCallAlert ? 1 : 0,
+        'enableAlarm': enableAlarm ? 1 : 0,
+        'muteNotifications': muteNotifications ? 1 : 0,
+        'selectedInterval': selectedInterval,
+        'veryLow': veryLow,
+        'veryHigh': veryHigh,
+        'bigDrop': bigDrop,
+        'bigRise': bigRise,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace, // ✅ Prevents duplicate rows
+    );
   }
 
   // Insert glucose reading
@@ -92,7 +153,6 @@ class DatabaseService {
   }
 
   // Fetch glucose readings for a specific day (for trendline)
-  /// **Fetch Glucose Data for a Specific Date (Trend Data)**
   Future<List<Map<String, dynamic>>> getGlucoseTrendData(String date) async {
     final db = await database;
     final result = await db.rawQuery('''
@@ -118,28 +178,6 @@ class DatabaseService {
         {'time': '20:00', 'value': 190},
       ];
     }
-  }
-
-  // Insert or update settings
-  Future<int> updateSettings(double high, double low, int interval) async {
-    final db = await database;
-    return await db.insert(
-      'settings',
-      {
-        'id': 1,
-        'alert_high': high,
-        'alert_low': low,
-        'retrieval_interval': interval,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  // Get settings
-  Future<Map<String, dynamic>?> getSettings() async {
-    final db = await database;
-    final result = await db.query('settings', where: 'id = ?', whereArgs: [1]);
-    return result.isNotEmpty ? result.first : null;
   }
 
   // Insert or update device info

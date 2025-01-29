@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../services/database_service.dart';
 import '../utils/color_utils.dart';
 import '../widgets/setting_tile.dart';
 
@@ -12,6 +13,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  final DatabaseService _databaseService = DatabaseService();
+
   bool enableVibration = false;
   bool enableCallAlert = false;
   bool enableAlarm = false;
@@ -27,6 +30,57 @@ class SettingsPageState extends State<SettingsPage> {
 
   double bigDrop = 15;
   double bigRise = 25;
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  /// **Fetch settings from SQLite**
+  Future<void> _loadSettings() async {
+    try {
+      var settings = await _databaseService.getSettings();
+      if (settings != null) {
+        setState(() {
+          enableVibration = settings['enableVibration'] == 1;
+          enableCallAlert = settings['enableCallAlert'] == 1;
+          enableAlarm = settings['enableAlarm'] == 1;
+          muteNotifications = settings['muteNotifications'] == 1;
+          selectedInterval = settings['selectedInterval'] ?? 5;
+          veryLow = settings['veryLow'] ?? 60.0;
+          veryHigh = settings['veryHigh'] ?? 200.0;
+          bigDrop = settings['bigDrop'] ?? 15.0;
+          bigRise = settings['bigRise'] ?? 25.0;
+        });
+      }
+    } catch (e) {
+      print("❌ Error loading settings: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  /// **Update settings in SQLite**
+  Future<void> _updateSettings() async {
+    try {
+      await _databaseService.updateSettings(
+        enableVibration: enableVibration,
+        enableCallAlert: enableCallAlert,
+        enableAlarm: enableAlarm,
+        muteNotifications: muteNotifications,
+        selectedInterval: selectedInterval,
+        veryLow: veryLow,
+        veryHigh: veryHigh,
+        bigDrop: bigDrop,
+        bigRise: bigRise,
+      );
+    } catch (e) {
+      print("❌ Error updating settings: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +131,7 @@ class SettingsPageState extends State<SettingsPage> {
             if (value == true) {
               setState(() {
                 selectedInterval = interval;
+                _updateSettings();
               });
             }
           },
@@ -90,14 +145,26 @@ class SettingsPageState extends State<SettingsPage> {
       title: "Alert Limits",
       icon: Icons.warning_amber,
       children: [
-        _buildSliderTile("Very Low (${veryLow.toInt()} mg/dL)", veryLow, 40,
-            100, (val) => setState(() => veryLow = val)),
-        _buildSliderTile("Very High (${veryHigh.toInt()} mg/dL)", veryHigh, 150,
-            400, (val) => setState(() => veryHigh = val)),
+        _buildSliderTile(
+            "Very Low (${veryLow.toInt()} mg/dL)", veryLow, 40, 100, (val) {
+          setState(() => veryLow = val);
+          _updateSettings();
+        }),
+        _buildSliderTile(
+            "Very High (${veryHigh.toInt()} mg/dL)", veryHigh, 150, 400, (val) {
+          setState(() => veryHigh = val);
+          _updateSettings();
+        }),
         _buildSliderTile("Big Drop (${bigDrop.toInt()} mg/dL)", bigDrop, 5, 50,
-            (val) => setState(() => bigDrop = val)),
+            (val) {
+          setState(() => bigDrop = val);
+          _updateSettings();
+        }),
         _buildSliderTile("Big Rise (${bigRise.toInt()} mg/dL)", bigRise, 10, 60,
-            (val) => setState(() => bigRise = val)),
+            (val) {
+          setState(() => bigRise = val);
+          _updateSettings();
+        }),
       ],
     );
   }
@@ -107,14 +174,22 @@ class SettingsPageState extends State<SettingsPage> {
       title: "Alert Settings",
       icon: Icons.notifications_active_outlined,
       children: [
-        _buildToggleTile("Trigger Vibration", enableVibration,
-            (val) => setState(() => enableVibration = val)),
-        _buildToggleTile("Trigger Phone Call Alert", enableCallAlert,
-            (val) => setState(() => enableCallAlert = val)),
-        _buildToggleTile("Trigger Alarm", enableAlarm,
-            (val) => setState(() => enableAlarm = val)),
-        _buildToggleTile("Trigger Notifications", muteNotifications,
-            (val) => setState(() => muteNotifications = val)),
+        _buildToggleTile("Trigger Vibration", enableVibration, (val) {
+          setState(() => enableVibration = val);
+          _updateSettings();
+        }),
+        _buildToggleTile("Trigger Phone Call Alert", enableCallAlert, (val) {
+          setState(() => enableCallAlert = val);
+          _updateSettings();
+        }),
+        _buildToggleTile("Trigger Alarm", enableAlarm, (val) {
+          setState(() => enableAlarm = val);
+          _updateSettings();
+        }),
+        _buildToggleTile("Trigger Notifications", muteNotifications, (val) {
+          setState(() => muteNotifications = val);
+          _updateSettings();
+        }),
       ],
     );
   }
