@@ -68,7 +68,20 @@ class DatabaseService {
     if (result.isNotEmpty) {
       return result.first;
     } else {
-      // 🔹 Return default settings if table is empty
+      // 🔹 If settings are missing, insert default settings
+      print("⚠️ No settings found. Inserting default settings...");
+      await updateSettings(
+        enableVibration: false,
+        enableCallAlert: false,
+        enableAlarm: false,
+        muteNotifications: true,
+        selectedInterval: 15,
+        veryLow: 60.0,
+        veryHigh: 200.0,
+        bigDrop: 15.0,
+        bigRise: 25.0,
+      );
+
       return {
         'enableVibration': 0,
         'enableCallAlert': 0,
@@ -83,8 +96,8 @@ class DatabaseService {
     }
   }
 
-// ✅ Insert or Update settings
-  Future<int> updateSettings({
+// ✅ Insert or Update settings properly
+  Future<void> updateSettings({
     required bool enableVibration,
     required bool enableCallAlert,
     required bool enableAlarm,
@@ -97,22 +110,48 @@ class DatabaseService {
   }) async {
     final db = await database;
 
-    return await db.insert(
-      'settings',
-      {
-        'id': 1, // Ensure there's only one row for settings
-        'enableVibration': enableVibration ? 1 : 0,
-        'enableCallAlert': enableCallAlert ? 1 : 0,
-        'enableAlarm': enableAlarm ? 1 : 0,
-        'muteNotifications': muteNotifications ? 1 : 0,
-        'selectedInterval': selectedInterval,
-        'veryLow': veryLow,
-        'veryHigh': veryHigh,
-        'bigDrop': bigDrop,
-        'bigRise': bigRise,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace, // ✅ Prevents duplicate rows
-    );
+    // 🔹 Check if settings already exist
+    final existingSettings =
+        await db.query('settings', where: 'id = ?', whereArgs: [1]);
+
+    if (existingSettings.isNotEmpty) {
+      // ✅ Update existing settings
+      await db.update(
+        'settings',
+        {
+          'enableVibration': enableVibration ? 1 : 0,
+          'enableCallAlert': enableCallAlert ? 1 : 0,
+          'enableAlarm': enableAlarm ? 1 : 0,
+          'muteNotifications': muteNotifications ? 1 : 0,
+          'selectedInterval': selectedInterval,
+          'veryLow': veryLow,
+          'veryHigh': veryHigh,
+          'bigDrop': bigDrop,
+          'bigRise': bigRise,
+        },
+        where: 'id = ?',
+        whereArgs: [1],
+      );
+    } else {
+      // ✅ Insert default settings if not found
+      await db.insert(
+        'settings',
+        {
+          'id': 1, // 🔹 Ensure only ONE settings row exists
+          'enableVibration': enableVibration ? 1 : 0,
+          'enableCallAlert': enableCallAlert ? 1 : 0,
+          'enableAlarm': enableAlarm ? 1 : 0,
+          'muteNotifications': muteNotifications ? 1 : 0,
+          'selectedInterval': selectedInterval,
+          'veryLow': veryLow,
+          'veryHigh': veryHigh,
+          'bigDrop': bigDrop,
+          'bigRise': bigRise,
+        },
+      );
+    }
+
+    print("✅ Settings saved to database");
   }
 
   // Insert glucose reading

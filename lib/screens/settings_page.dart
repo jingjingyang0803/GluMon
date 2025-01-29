@@ -77,6 +77,7 @@ class SettingsPageState extends State<SettingsPage> {
         bigDrop: bigDrop,
         bigRise: bigRise,
       );
+      print("✅ Settings updated successfully!");
     } catch (e) {
       print("❌ Error updating settings: $e");
     }
