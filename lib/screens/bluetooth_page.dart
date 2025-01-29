@@ -1,13 +1,10 @@
-import 'dart:convert';
-import 'dart:io' show Platform;
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble; // BLE
+import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble;
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
-    as bt_serial; // Classic Bluetooth
+    as bt_serial;
 import 'package:google_fonts/google_fonts.dart';
 
+import '../services/bluetooth_service.dart';
 import '../utils/color_utils.dart';
 
 class BluetoothPage extends StatefulWidget {
@@ -18,194 +15,14 @@ class BluetoothPage extends StatefulWidget {
 }
 
 class BluetoothPageState extends State<BluetoothPage> {
-  bt_serial.FlutterBluetoothSerial bluetooth =
-      bt_serial.FlutterBluetoothSerial.instance;
-  bt_serial.BluetoothConnection? classicConnection;
-  List<bt_serial.BluetoothDevice> classicDevices = [];
-  List<bt_ble.ScanResult> bleDevices = [];
-
-  bt_serial.BluetoothDevice? selectedClassicDevice;
-  bt_ble.BluetoothDevice? selectedBleDevice;
-
-  bool isClassicConnected = false;
-  bool isBleConnected = false;
-  bool isScanning = false;
-  String receivedData = "No data yet";
+  final BluetoothService _bluetoothService = BluetoothService();
 
   @override
   void initState() {
     super.initState();
-    _scanDevices();
+    _bluetoothService.scanDevices();
   }
 
-  /// **Scan for Bluetooth devices**
-  void _scanDevices() async {
-    try {
-      setState(() => isScanning = true);
-
-      // Check if Bluetooth is available
-      if (!await bt_ble.FlutterBluePlus.isSupported ||
-          (await bt_ble.FlutterBluePlus.adapterState.first) !=
-              bt_ble.BluetoothAdapterState.on) {
-        print("❌ Bluetooth is OFF. Cannot start scanning.");
-        setState(() => isScanning = false);
-        return;
-      }
-
-      // Stop any ongoing scan
-      await bt_ble.FlutterBluePlus.stopScan();
-      await Future.delayed(const Duration(milliseconds: 500)); // Small delay
-
-      // Scan for Classic Bluetooth devices (SPP)
-      if (Platform.isAndroid || Platform.isMacOS) {
-        // Allow MacBook for testing
-        List<bt_serial.BluetoothDevice> bondedDevices =
-            await bluetooth.getBondedDevices();
-        for (var device in bondedDevices) {
-          print("Found Classic Device: ${device.name} | ${device.address}");
-        }
-        List<bt_serial.BluetoothDevice> filteredDevices =
-            bondedDevices.where((device) {
-          return device.name!.toLowerCase().contains('esp') ||
-              device.name!.toLowerCase().contains('arduino') ||
-              device.name!.toLowerCase().contains('hc-05') ||
-              device.name!
-                  .toLowerCase()
-                  .contains('macbook'); // Allow MacBook for testing
-        }).toList();
-
-        if (mounted) {
-          setState(() => classicDevices = filteredDevices);
-        }
-      }
-
-      // Start BLE scanning with filtering
-      bt_ble.FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
-
-      // Listen for BLE scan results and filter microcontrollers
-      bt_ble.FlutterBluePlus.scanResults
-          .listen((List<bt_ble.ScanResult> results) {
-        for (var result in results) {
-          print(
-              "Found BLE Device: ${result.device.platformName} | ${result.device.remoteId} | Services: ${result.advertisementData.serviceUuids}");
-        }
-        List<bt_ble.ScanResult> filteredResults = results.where((r) {
-          return r.device.platformName.toLowerCase().contains('esp') ||
-              r.device.platformName.toLowerCase().contains('arduino') ||
-              r.device.platformName.toLowerCase().contains('hc-08') ||
-              r.device.platformName
-                  .toLowerCase()
-                  .contains('macbook') || // Allow MacBook
-              (r.advertisementData.serviceUuids
-                      .isNotEmpty && // Check Service UUIDs
-                  r.advertisementData.serviceUuids
-                      .map((uuid) => uuid.toString())
-                      .contains(
-                          "0000ffe0-0000-1000-8000-00805f9b34fb")); // Convert Guid to String
-        }).toList();
-
-        if (mounted) {
-          setState(() => bleDevices = filteredResults);
-        }
-      });
-
-      print("🔍 Scanning for Bluetooth devices...");
-    } catch (e) {
-      print("❌ Error scanning: $e");
-      setState(() => isScanning = false);
-    }
-
-    Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => isScanning = false);
-      }
-    });
-  }
-
-  /// **Connect to Classic Bluetooth (SPP)**
-  Future<void> _connectToClassicDevice(bt_serial.BluetoothDevice device) async {
-    try {
-      classicConnection =
-          await bt_serial.BluetoothConnection.toAddress(device.address);
-      setState(() {
-        isClassicConnected = true;
-        selectedClassicDevice = device;
-      });
-
-      classicConnection!.input!.listen((Uint8List data) {
-        String decodedData = utf8.decode(data);
-        if (mounted) {
-          setState(() {
-            receivedData = decodedData;
-          });
-        }
-      });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          isClassicConnected = false;
-        });
-      }
-    }
-  }
-
-  /// **Connect to BLE Device**
-  Future<void> _connectToBleDevice(bt_ble.BluetoothDevice device) async {
-    try {
-      await device.connect();
-      setState(() {
-        isBleConnected = true;
-        selectedBleDevice = device;
-      });
-
-      var services = await device.discoverServices();
-      for (var service in services) {
-        for (var characteristic in service.characteristics) {
-          if (characteristic.properties.notify) {
-            await characteristic.setNotifyValue(true);
-            characteristic.lastValueStream.listen((value) {
-              String decodedData = utf8.decode(value);
-              if (mounted) {
-                setState(() {
-                  receivedData = decodedData;
-                });
-              }
-            });
-          }
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          isBleConnected = false;
-        });
-      }
-    }
-  }
-
-  /// **Disconnect Classic Bluetooth**
-  void _disconnectClassic() {
-    if (classicConnection != null) {
-      classicConnection!.finish();
-      setState(() {
-        isClassicConnected = false;
-        selectedClassicDevice = null;
-      });
-    }
-  }
-
-  /// **Disconnect BLE**
-  void _disconnectBle() {
-    if (selectedBleDevice != null) {
-      selectedBleDevice!.disconnect();
-      setState(() {
-        isBleConnected = false;
-        selectedBleDevice = null;
-      });
-    }
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -224,19 +41,39 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            if (isScanning) const Center(child: CircularProgressIndicator()),
+            StreamBuilder<bool>(
+              stream: _bluetoothService.scanningStream,
+              builder: (context, snapshot) {
+                bool isScanning = snapshot.data ?? false;
+                return isScanning
+                    ? const Center(child: CircularProgressIndicator())
+                    : const SizedBox();
+              },
+            ),
 
             // Use Expanded to prevent overflow
             Expanded(
               child: ListView(
                 children: [
-                  _buildDeviceCard("Classic Bluetooth (SPP) Devices",
-                      classicDevices, _connectToClassicDevice),
+                  StreamBuilder<List<bt_serial.BluetoothDevice>>(
+                    stream: _bluetoothService.classicDevicesStream,
+                    builder: (context, snapshot) {
+                      return _buildDeviceCard(
+                          "Classic Bluetooth (SPP) Devices",
+                          snapshot.data ?? [],
+                          _bluetoothService.connectToClassicDevice);
+                    },
+                  ),
                   const SizedBox(height: 10),
-                  _buildDeviceCard(
-                      "BLE Devices",
-                      bleDevices.map((r) => r.device).toList(),
-                      _connectToBleDevice),
+                  StreamBuilder<List<bt_ble.ScanResult>>(
+                    stream: _bluetoothService.bleDevicesStream,
+                    builder: (context, snapshot) {
+                      return _buildDeviceCard(
+                          "BLE Devices",
+                          snapshot.data?.map((r) => r.device).toList() ?? [],
+                          _bluetoothService.connectToBleDevice);
+                    },
+                  ),
                   const SizedBox(height: 10),
                   _buildConnectionStatusCard(),
                 ],
@@ -246,7 +83,7 @@ class BluetoothPageState extends State<BluetoothPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _scanDevices,
+        onPressed: _bluetoothService.scanDevices,
         backgroundColor: primaryDarkBlue,
         child: const Icon(Icons.refresh),
       ),
@@ -258,7 +95,7 @@ class BluetoothPageState extends State<BluetoothPage> {
       String title, List devices, Function connectFunction) {
     return Card(
       elevation: 4,
-      color: Colors.white, // Set the card background color to white
+      color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -273,11 +110,8 @@ class BluetoothPageState extends State<BluetoothPage> {
                   color: Colors.black),
             ),
             const SizedBox(height: 10),
-
-            // Wrapping the list inside a SizedBox to limit height and enable scrolling
             SizedBox(
-              height:
-                  devices.isEmpty ? 20 : 200, // Adjust this height as needed
+              height: devices.isEmpty ? 20 : 200,
               child: devices.isEmpty
                   ? const Center(
                       child: Text("No devices found",
@@ -285,8 +119,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                     )
                   : ListView.builder(
                       shrinkWrap: true,
-                      physics:
-                          const AlwaysScrollableScrollPhysics(), // Enables scrolling
+                      physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: devices.length,
                       itemBuilder: (context, index) {
                         var device = devices[index];
@@ -313,51 +146,67 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Connection Status Wrapped in a Card**
   Widget _buildConnectionStatusCard() {
-    return Card(
-      elevation: 4,
-      color: Colors.white, // Set the card background color to white
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+    return StreamBuilder<bool>(
+      stream: _bluetoothService.connectionStatusStream,
+      builder: (context, snapshot) {
+        bool isConnected = snapshot.data ?? false;
+        return Card(
+          elevation: 4,
+          color: Colors.white,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
               children: [
-                Icon(
-                  (isClassicConnected || isBleConnected)
-                      ? Icons.bluetooth_connected
-                      : Icons.bluetooth_disabled,
-                  color: (isClassicConnected || isBleConnected)
-                      ? Colors.green
-                      : Colors.red,
-                  size: 30,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      isConnected
+                          ? Icons.bluetooth_connected
+                          : Icons.bluetooth_disabled,
+                      color: isConnected ? Colors.green : Colors.red,
+                      size: 30,
+                    ),
+                    const SizedBox(width: 10),
+                    StreamBuilder<String>(
+                      stream: _bluetoothService.deviceNameStream,
+                      builder: (context, snapshot) {
+                        String deviceName = snapshot.data ?? "None";
+                        return Text(
+                          "Connected to: \n$deviceName",
+                          style: GoogleFonts.poppins(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Text(
-                  "Connected to: \n${isClassicConnected ? selectedClassicDevice?.name : selectedBleDevice?.platformName ?? "None"}",
-                  style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                const SizedBox(height: 10),
+                StreamBuilder<String>(
+                  stream: _bluetoothService.dataStream,
+                  builder: (context, snapshot) {
+                    String receivedData = snapshot.data ?? "No data yet";
+                    return Text("Received Data: $receivedData",
+                        style: GoogleFonts.poppins(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center);
+                  },
                 ),
+                const SizedBox(height: 20),
+                if (isConnected)
+                  ElevatedButton(
+                    onPressed: _bluetoothService.disconnect,
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent),
+                    child: const Text("Disconnect"),
+                  ),
               ],
             ),
-            const SizedBox(height: 10),
-            Text("Received Data: $receivedData",
-                style: GoogleFonts.poppins(
-                    fontSize: 14, fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            if (isClassicConnected || isBleConnected)
-              ElevatedButton(
-                onPressed:
-                    isClassicConnected ? _disconnectClassic : _disconnectBle,
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                child: const Text("Disconnect"),
-              ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
