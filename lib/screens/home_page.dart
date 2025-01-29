@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:glu_mon/components/welcome_title.dart';
-import 'package:http/http.dart' as http;
 
 import '../components/avg_glucose_card.dart';
 import '../components/current_glucose_card.dart';
 import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
+import '../services/database_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,9 +16,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // ✅ State variables for fetched data
+  final DatabaseService _databaseService = DatabaseService(); // SQLite Instance
 
-  // Fake!!!
+  // ✅ State variables for fetched data
   String userName = "Jingjing";
 
   bool isConnected = false;
@@ -42,35 +40,49 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // _fetchData(); // ✅ Fetch data when HomePage loads
+    _fetchData(); // ✅ Fetch data from SQLite when HomePage loads
   }
 
-  // ✅ Simulated API fetch function (Replace with real API/Firebase call)
+  /// **Fetch Data from SQLite Database**
   Future<void> _fetchData() async {
     try {
-      final response =
-          await http.get(Uri.parse('https://api.example.com/sensor-data'));
+      final readings = await _databaseService.getGlucoseReadings();
+      final sensorStatus = await _databaseService.getDeviceStatus();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
+      if (readings.isNotEmpty) {
         setState(() {
-          userName = data["userName"] ?? "Unknown";
-          isConnected = data["isConnected"] ?? false;
-          batteryLevel = data["batteryLevel"] ?? 0;
-          currentGlucose = data["currentGlucose"] ?? "--";
-          glucoseTime = data["glucoseTime"] ?? "--";
-          maxGlucose = data["maxGlucose"] ?? "--";
-          avgGlucose = data["avgGlucose"] ?? "--";
-          minGlucose = data["minGlucose"] ?? "--";
-          glucoseDate = data["glucoseDate"] ?? "--";
-          isLoading = false;
+          var latestReading = readings.first;
+          currentGlucose = latestReading['glucose_level'].toString();
+          glucoseTime = latestReading['timestamp']; // Assuming timestamp format
         });
-      } else {
-        print("Failed to fetch data. Status code: ${response.statusCode}");
+
+        // Fetch daily min/max/avg glucose levels
+        final dailyStats = await _databaseService.getDailyMinMaxAvg();
+        if (dailyStats.isNotEmpty) {
+          setState(() {
+            maxGlucose = dailyStats.first['max_glucose'].toString();
+            avgGlucose = dailyStats.first['avg_glucose'].toString();
+            minGlucose = dailyStats.first['min_glucose'].toString();
+            glucoseDate = dailyStats.first['date']; // Format date properly
+          });
+        }
       }
+
+      if (sensorStatus != null) {
+        setState(() {
+          isConnected = sensorStatus['connection_status'] == 'connected';
+          batteryLevel = sensorStatus['battery_level'];
+        });
+      }
+
+      setState(() {
+        isLoading = false; // Stop loading
+      });
     } catch (e) {
-      print("Error fetching data: $e");
+      print("❌ Error fetching data from SQLite: $e");
+      setState(() {
+        isLoading = false; // Stop loading in case of error
+      });
     }
   }
 
