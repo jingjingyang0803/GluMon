@@ -15,12 +15,18 @@ class BluetoothPage extends StatefulWidget {
 }
 
 class BluetoothPageState extends State<BluetoothPage> {
-  final BluetoothService _bluetoothService = BluetoothService();
+  late final BluetoothService _bluetoothService;
 
   @override
   void initState() {
     super.initState();
-    _bluetoothService.scanDevices();
+    _bluetoothService =
+        BluetoothService(); // Ensure it's always the singleton instance
+
+    if (!_bluetoothService.isClassicConnected &&
+        !_bluetoothService.isBleConnected) {
+      _bluetoothService.scanDevices();
+    }
   }
 
   @override

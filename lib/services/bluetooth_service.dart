@@ -10,9 +10,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
 class BluetoothService {
   static final BluetoothService _instance = BluetoothService._internal();
 
-  factory BluetoothService() {
-    return _instance;
-  }
+  factory BluetoothService() => _instance;
 
   BluetoothService._internal();
 
@@ -30,6 +28,11 @@ class BluetoothService {
   bool _isBleConnected = false;
   bool _isScanning = false;
   String _receivedData = "No data yet";
+
+  // ✅ Public getters
+  bool get isClassicConnected => _isClassicConnected;
+  bool get isBleConnected => _isBleConnected;
+  bool get isConnected => _isClassicConnected || _isBleConnected;
 
   final StreamController<List<bt_serial.BluetoothDevice>>
       _classicDevicesStream = StreamController.broadcast();
@@ -53,11 +56,11 @@ class BluetoothService {
   Stream<bool> get scanningStream => _scanningStream.stream;
   Stream<String> get deviceNameStream => _deviceNameStream.stream;
 
-  /// **Scan for Bluetooth Devices**
+  /// **Scan for Bluetooth Devices (Microcontrollers & MacBook)**
   Future<void> scanDevices() async {
     if (_isScanning) return;
     _isScanning = true;
-    _scanningStream.add(true); // Notify UI that scanning has started
+    _scanningStream.add(true);
     _classicDevices = [];
     _bleDevices = [];
 
@@ -79,7 +82,6 @@ class BluetoothService {
         List<bt_serial.BluetoothDevice> bondedDevices =
             await _bluetoothSerial.getBondedDevices();
 
-        // 🔹 Filter devices: ESP, Arduino, HC-05, HC-08, MacBook
         _classicDevices = bondedDevices.where((device) {
           final name = device.name?.toLowerCase() ?? "";
           return name.contains('esp') ||
@@ -106,8 +108,7 @@ class BluetoothService {
               name.contains('arduino') ||
               name.contains('hc-08') ||
               name.contains('macbook') ||
-              serviceUuids.contains(
-                  "0000ffe0-0000-1000-8000-00805f9b34fb"); // Common microcontroller UUID
+              serviceUuids.contains("0000ffe0-0000-1000-8000-00805f9b34fb");
         }).toList();
 
         _bleDevicesStream.add(_bleDevices);
@@ -118,31 +119,21 @@ class BluetoothService {
       print("❌ Error scanning: $e");
     } finally {
       _isScanning = false;
-      _scanningStream.add(false); // Notify UI that scanning has stopped
-    }
-  }
-
-  /// **Disconnect from Both Classic and BLE**
-  void disconnect() {
-    if (_isClassicConnected) {
-      disconnectClassic();
-    }
-    if (_isBleConnected) {
-      disconnectBle();
+      _scanningStream.add(false);
     }
   }
 
   /// **Connect to Classic Bluetooth Device**
   Future<void> connectToClassicDevice(bt_serial.BluetoothDevice device) async {
     try {
+      await disconnect(); // Ensure previous connections are closed
+
       _classicConnection =
           await bt_serial.BluetoothConnection.toAddress(device.address);
       _isClassicConnected = true;
 
-      // 🔹 Update the device name
-      _deviceNameStream.add((device.name != null && device.name!.isNotEmpty)
-          ? device.name!
-          : "Unknown Device");
+      _deviceNameStream.add(
+          device.name?.isNotEmpty == true ? device.name! : "Unknown Device");
 
       _classicConnection!.input!.listen((Uint8List data) {
         try {
@@ -154,6 +145,7 @@ class BluetoothService {
       });
 
       _connectionStatusStream.add(true);
+      print("✅ Connected to Classic Bluetooth: ${device.name}");
     } catch (e) {
       _isClassicConnected = false;
       _connectionStatusStream.add(false);
@@ -164,11 +156,12 @@ class BluetoothService {
   /// **Connect to BLE Device**
   Future<void> connectToBleDevice(bt_ble.BluetoothDevice device) async {
     try {
+      await disconnect(); // Ensure previous connections are closed
+
       await device.connect();
       _isBleConnected = true;
       _selectedBleDevice = device;
 
-      // 🔹 Update the device name
       _deviceNameStream.add(device.platformName.isNotEmpty
           ? device.platformName
           : "Unknown Device");
@@ -191,6 +184,7 @@ class BluetoothService {
       }
 
       _connectionStatusStream.add(true);
+      print("✅ Connected to BLE: ${device.platformName}");
     } catch (e) {
       _isBleConnected = false;
       _connectionStatusStream.add(false);
@@ -198,25 +192,20 @@ class BluetoothService {
     }
   }
 
-  /// **Disconnect from Classic Bluetooth**
-  void disconnectClassic() {
-    _classicConnection?.finish();
-    _isClassicConnected = false;
+  /// **Disconnect from Both Classic and BLE**
+  Future<void> disconnect() async {
+    if (_isClassicConnected) {
+      _classicConnection?.finish();
+      _isClassicConnected = false;
+    }
+    if (_isBleConnected) {
+      await _selectedBleDevice?.disconnect();
+      _isBleConnected = false;
+    }
     _connectionStatusStream.add(false);
-
-    // 🔹 Reset device name and received data
     _deviceNameStream.add("None");
     _dataStream.add("No data yet");
-  }
 
-  /// **Disconnect from BLE**
-  void disconnectBle() {
-    _selectedBleDevice?.disconnect();
-    _isBleConnected = false;
-    _connectionStatusStream.add(false);
-
-    // 🔹 Reset device name and received data
-    _deviceNameStream.add("None");
-    _dataStream.add("No data yet");
+    print("🔴 Disconnected from Bluetooth");
   }
 }

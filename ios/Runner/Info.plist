@@ -52,6 +52,10 @@
     <string>This app uses Bluetooth to communicate with external devices.</string>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Bluetooth is required to connect to sensors.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-central</string>
+    </array>
 
 </dict>
 </plist>
