@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble; // BLE
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
     as bt_serial;
+import 'package:rxdart/rxdart.dart'; // Import this at the top
 import 'package:sqflite/sqflite.dart';
 
 import 'database_service.dart'; // Classic Bluetooth
@@ -42,8 +43,8 @@ class BluetoothService {
   final StreamController<List<bt_ble.ScanResult>> _bleDevicesStream =
       StreamController.broadcast();
   final StreamController<String> _dataStream = StreamController.broadcast();
-  final StreamController<bool> _connectionStatusStream =
-      StreamController.broadcast();
+  final BehaviorSubject<bool> _connectionStatusStream =
+      BehaviorSubject<bool>.seeded(false);
 
   Stream<List<bt_serial.BluetoothDevice>> get classicDevicesStream =>
       _classicDevicesStream.stream;
@@ -53,18 +54,28 @@ class BluetoothService {
   Stream<bool> get connectionStatusStream => _connectionStatusStream.stream;
 
   final StreamController<bool> _scanningStream = StreamController.broadcast();
-  final StreamController<String> _deviceNameStream =
-      StreamController.broadcast();
+  final BehaviorSubject<String> _deviceNameStream =
+      BehaviorSubject.seeded("None");
 
   Stream<bool> get scanningStream => _scanningStream.stream;
   Stream<String> get deviceNameStream => _deviceNameStream.stream;
 
   void emitCurrentDeviceName() {
     if (_selectedBleDevice != null) {
+      print(
+          "🔵 Emitting last connected device: ${_selectedBleDevice!.platformName}");
       _deviceNameStream.add(_selectedBleDevice!.platformName);
+      updateConnectionStatus(true); // 🔥 Ensure connection status is updated
     } else {
+      print("⚠️ No device found, emitting 'None'");
       _deviceNameStream.add("None");
+      updateConnectionStatus(false);
     }
+  }
+
+  void updateConnectionStatus(bool isConnected) {
+    print("🔵 Updating Connection Status: $isConnected");
+    _connectionStatusStream.add(isConnected);
   }
 
   /// **Scan for Bluetooth Devices (Microcontrollers & MacBook)**

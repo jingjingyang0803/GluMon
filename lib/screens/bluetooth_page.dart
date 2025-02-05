@@ -22,12 +22,13 @@ class BluetoothPageState extends State<BluetoothPage> {
     super.initState();
     _bluetoothService = BluetoothService(); // Singleton instance
 
-    if (_bluetoothService.isConnected) {
-      // Ensure the UI gets the last connected device
-      _bluetoothService.emitCurrentDeviceName();
-    } else {
-      _bluetoothService.scanDevices();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_bluetoothService.isConnected) {
+        _bluetoothService.emitCurrentDeviceName(); // Ensure UI updates
+      } else {
+        _bluetoothService.scanDevices();
+      }
+    });
   }
 
   @override
