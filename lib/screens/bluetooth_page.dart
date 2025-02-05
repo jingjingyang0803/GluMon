@@ -193,13 +193,16 @@ class BluetoothPageState extends State<BluetoothPage> {
                 ),
                 const SizedBox(height: 10),
                 StreamBuilder<String>(
-                  stream: _bluetoothService.dataStream,
+                  stream:
+                      _bluetoothService.dataStream, // ✅ Listen to data updates
                   builder: (context, snapshot) {
                     String receivedData = snapshot.data ?? "No data yet";
-                    return Text("Received Data: $receivedData",
-                        style: GoogleFonts.poppins(
-                            fontSize: 14, fontWeight: FontWeight.w500),
-                        textAlign: TextAlign.center);
+                    return Text(
+                      receivedData, // ✅ Displays live data updates
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    );
                   },
                 ),
                 const SizedBox(height: 20),

@@ -31,7 +31,6 @@ class BluetoothService {
   bool _isClassicConnected = false;
   bool _isBleConnected = false;
   bool _isScanning = false;
-  String _receivedData = "No data yet";
 
   // ✅ Public getters
   bool get isClassicConnected => _isClassicConnected;
@@ -42,7 +41,6 @@ class BluetoothService {
       _classicDevicesStream = StreamController.broadcast();
   final StreamController<List<bt_ble.ScanResult>> _bleDevicesStream =
       StreamController.broadcast();
-  final StreamController<String> _dataStream = StreamController.broadcast();
   final BehaviorSubject<bool> _connectionStatusStream =
       BehaviorSubject<bool>.seeded(false);
 
@@ -50,15 +48,38 @@ class BluetoothService {
       _classicDevicesStream.stream;
   Stream<List<bt_ble.ScanResult>> get bleDevicesStream =>
       _bleDevicesStream.stream;
-  Stream<String> get dataStream => _dataStream.stream;
   Stream<bool> get connectionStatusStream => _connectionStatusStream.stream;
 
   final StreamController<bool> _scanningStream = StreamController.broadcast();
   final BehaviorSubject<String> _deviceNameStream =
       BehaviorSubject.seeded("None");
+  final StreamController<String> _dataStream = StreamController.broadcast();
 
   Stream<bool> get scanningStream => _scanningStream.stream;
   Stream<String> get deviceNameStream => _deviceNameStream.stream;
+  Stream<String> get dataStream => _dataStream.stream; // ✅ Use this in UI
+
+  void _parseAndEmitData(String rawData) {
+    try {
+      // Parse JSON data from ESP32
+      Map<String, dynamic> jsonData = jsonDecode(rawData);
+      String glucose = jsonData["glucose"].toString();
+      String temperature = jsonData["temp"].toString();
+      String humidity = jsonData["humidity"].toString();
+      String timestamp = jsonData["timestamp"].toString();
+
+      String formattedData = "🩸 Glucose: $glucose mg/dL\n"
+          "🌡 Temp: $temperature°C\n"
+          "💧 Humidity: $humidity%\n"
+          "⏳ Time: $timestamp ms";
+
+      _dataStream.add(formattedData); // ✅ Send to UI
+
+      print("📩 Data received and parsed: \n$formattedData");
+    } catch (e) {
+      print("⚠️ JSON Parse Error: $e");
+    }
+  }
 
   void emitCurrentDeviceName() {
     if (_selectedBleDevice != null) {
@@ -221,7 +242,10 @@ class BluetoothService {
             characteristic.lastValueStream.listen((value) {
               try {
                 String decodedData = utf8.decode(value);
-                _dataStream.add(decodedData);
+                print("📩 Received from ESP32: $decodedData");
+
+                // 🔥 Call `_parseAndEmitData()` to process the received BLE data
+                _parseAndEmitData(decodedData);
               } catch (e) {
                 print("⚠️ BLE Data Decode Error: $e");
               }
