@@ -20,11 +20,12 @@ class BluetoothPageState extends State<BluetoothPage> {
   @override
   void initState() {
     super.initState();
-    _bluetoothService =
-        BluetoothService(); // Ensure it's always the singleton instance
+    _bluetoothService = BluetoothService(); // Singleton instance
 
-    if (!_bluetoothService.isClassicConnected &&
-        !_bluetoothService.isBleConnected) {
+    if (_bluetoothService.isConnected) {
+      // Ensure the UI gets the last connected device
+      _bluetoothService.emitCurrentDeviceName();
+    } else {
       _bluetoothService.scanDevices();
     }
   }

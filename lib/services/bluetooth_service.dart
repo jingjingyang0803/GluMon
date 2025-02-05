@@ -59,6 +59,14 @@ class BluetoothService {
   Stream<bool> get scanningStream => _scanningStream.stream;
   Stream<String> get deviceNameStream => _deviceNameStream.stream;
 
+  void emitCurrentDeviceName() {
+    if (_selectedBleDevice != null) {
+      _deviceNameStream.add(_selectedBleDevice!.platformName);
+    } else {
+      _deviceNameStream.add("None");
+    }
+  }
+
   /// **Scan for Bluetooth Devices (Microcontrollers & MacBook)**
   Future<void> scanDevices() async {
     if (_isScanning) return;
@@ -89,7 +97,7 @@ class BluetoothService {
           final name = device.name?.toLowerCase() ?? "";
           return name.contains('esp') ||
               name.contains('arduino') ||
-              name.contains('hc-05') ||
+              name.contains('hc-06') ||
               name.contains('hc-08') ||
               name.contains('macbook');
         }).toList();
