@@ -52,13 +52,55 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            StreamBuilder<bool>(
-              stream: _bluetoothService.scanningStream,
+            StreamBuilder<String>(
+              stream: _bluetoothService.dataStream,
               builder: (context, snapshot) {
-                bool isScanning = snapshot.data ?? false;
-                return isScanning
-                    ? const Center(child: CircularProgressIndicator())
-                    : const SizedBox();
+                if (snapshot.hasData) {
+                  String receivedData = snapshot.data ?? "";
+
+                  // ✅ Trim and ensure proper JSON format
+                  receivedData = receivedData.trim();
+                  if (receivedData.startsWith('{') &&
+                      receivedData.endsWith('}')) {
+                    try {
+                      Map<String, dynamic> jsonData = jsonDecode(receivedData);
+
+                      double? glucose = jsonData["glucose"];
+                      double? temperature = jsonData["temp"];
+                      double? humidity = jsonData["humidity"];
+                      String timestamp = jsonData["timestamp"] ??
+                          DateTime.now().toIso8601String();
+
+                      // ✅ Ensure no null values before saving
+                      if (glucose != null &&
+                          temperature != null &&
+                          humidity != null) {
+                        final DatabaseService _databaseService =
+                            DatabaseService();
+
+                        // ✅ Check if data already exists before saving
+                        _databaseService.saveGlucoseReading({
+                          'glucose_level': glucose,
+                          'temperature': temperature,
+                          'humidity': humidity,
+                          'timestamp': timestamp,
+                        });
+
+                        print("✅ Data saved to database: $jsonData");
+                      } else {
+                        print(
+                            "⚠️ Skipping save due to missing values: $jsonData");
+                      }
+                    } catch (e) {
+                      print(
+                          "⚠️ JSON Parse Error: $e \nReceived Data: $receivedData");
+                    }
+                  } else {
+                    print("⚠️ Invalid JSON format: $receivedData");
+                  }
+                }
+
+                return const SizedBox.shrink(); // No UI needed
               },
             ),
 

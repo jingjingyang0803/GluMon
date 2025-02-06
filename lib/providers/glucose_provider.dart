@@ -5,12 +5,12 @@ import '../services/database_service.dart';
 class GlucoseProvider with ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
 
-  String currentGlucose = "165";
+  int currentGlucose = 165;
   String glucoseUnit = "mg/dL";
   String glucoseTime = "5 min ago";
-  String maxGlucose = "180";
-  String avgGlucose = "120";
-  String minGlucose = "95";
+  int maxGlucose = 180;
+  int avgGlucose = 120;
+  int minGlucose = 95;
   String glucoseDate = "Fri 26. Jan";
   bool isConnected = false;
   int batteryLevel = 45;
@@ -28,15 +28,17 @@ class GlucoseProvider with ChangeNotifier {
 
       if (readings.isNotEmpty) {
         var latestReading = readings.first;
-        currentGlucose = latestReading['glucose_level'].toString();
+        currentGlucose = (latestReading['glucose_level'] as num).toInt();
         glucoseTime = latestReading['timestamp'];
+        temperature = latestReading['temperature'];
+        humidity = latestReading['humidity'];
       }
 
       final dailyStats = await _databaseService.getDailyMinMaxAvg();
       if (dailyStats.isNotEmpty) {
-        maxGlucose = dailyStats.first['max_glucose'].toString();
-        avgGlucose = dailyStats.first['avg_glucose'].toString();
-        minGlucose = dailyStats.first['min_glucose'].toString();
+        maxGlucose = (dailyStats.first['max_glucose'] as num).toInt();
+        avgGlucose = (dailyStats.first['avg_glucose'] as num).toInt();
+        minGlucose = (dailyStats.first['min_glucose'] as num).toInt();
         glucoseDate = dailyStats.first['date'];
       }
 
@@ -56,7 +58,7 @@ class GlucoseProvider with ChangeNotifier {
 
   /// **Update Data when Sensor Sends New Readings**
   void updateSensorData(Map<String, dynamic> newData) {
-    currentGlucose = newData['glucose_level'].toString();
+    currentGlucose = newData['glucose_level'];
     glucoseTime = newData['timestamp'];
     temperature = newData['temperature'] ?? temperature;
     humidity = newData['humidity'] ?? humidity;

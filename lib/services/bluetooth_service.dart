@@ -61,23 +61,33 @@ class BluetoothService {
 
   void _parseAndEmitData(String rawData) {
     try {
-      Map<String, dynamic> jsonData = jsonDecode(rawData);
+      rawData = rawData.trim(); // ✅ Remove unwanted spaces and newlines
 
-      Map<String, dynamic> formattedData = {
-        'glucose_level': jsonData["glucose"],
-        'temperature': jsonData["temp"],
-        'humidity': jsonData["humidity"],
-        'timestamp': DateTime.now().toIso8601String(),
-      };
+      // ✅ Check if the data starts and ends with JSON brackets
+      if (rawData.startsWith('{') && rawData.endsWith('}')) {
+        Map<String, dynamic> jsonData = jsonDecode(rawData);
 
-      _dataStream.add("🩸 Glucose: ${formattedData['glucose_level']} mg/dL\n"
-          "🌡 Temp: ${formattedData['temperature']}°C\n"
-          "💧 Humidity: ${formattedData['humidity']}%\n"
-          "⏳ Time: ${formattedData['timestamp']}");
+        Map<String, dynamic> formattedData = {
+          'glucose_level': jsonData["glucose"] ?? 0.0,
+          'temperature': jsonData["temp"] ?? 0.0,
+          'humidity': jsonData["humidity"] ?? 0.0,
+          'timestamp': jsonData["timestamp"] ??
+              DateTime.now()
+                  .toIso8601String(), // ✅ Ensure Flutter uses the ESP32 timestamp
+        };
 
-      print("📩 Data received and parsed: \n$formattedData");
+        _dataStream.add(jsonEncode(formattedData)); // ✅ Send clean JSON format
+
+        print("📩 Data received and parsed: $formattedData");
+
+        // ✅ Save to database
+        final DatabaseService _databaseService = DatabaseService();
+        _databaseService.saveGlucoseReading(formattedData);
+      } else {
+        print("⚠️ Invalid JSON format: $rawData");
+      }
     } catch (e) {
-      print("⚠️ JSON Parse Error: $e");
+      print("⚠️ JSON Parse Error: $e \nReceived Data: $rawData");
     }
   }
 

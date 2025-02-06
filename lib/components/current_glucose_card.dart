@@ -32,7 +32,20 @@ class CurrentGlucoseCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Icon(Icons.water_drop, color: Colors.white),
-              Text(time, style: TextStyle(color: Colors.white)),
+              Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.end, // Align text to the right
+                children: [
+                  Text(
+                    time.split('T')[0], // Display date (YYYY-MM-DD)
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    time.split('T')[1], // Display time (HH:MM:SS)
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
             ],
           ),
           Row(

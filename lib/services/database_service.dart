@@ -54,7 +54,9 @@ class DatabaseService {
         CREATE TABLE glucose_readings (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           timestamp TEXT NOT NULL,
-          glucose_level REAL NOT NULL
+          glucose_level REAL NOT NULL,
+          temperature REAL NOT NULL,
+          humidity REAL NOT NULL
         )
       ''');
 
@@ -332,17 +334,30 @@ class DatabaseService {
   Future<void> saveGlucoseReading(Map<String, dynamic> data) async {
     try {
       final db = await database;
-      await db.insert(
+
+      // ✅ Check if an entry with the same timestamp exists
+      List<Map<String, dynamic>> existingData = await db.query(
         'glucose_readings',
-        {
-          'timestamp': data['timestamp'] ?? DateTime.now().toIso8601String(),
-          'glucose_level': data['glucose_level'],
-          'temperature': data['temperature'],
-          'humidity': data['humidity'],
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        where: 'timestamp = ?',
+        whereArgs: [data['timestamp']],
       );
-      print("✅ Glucose data saved: $data");
+
+      if (existingData.isEmpty) {
+        // ✅ Insert only if no duplicate exists
+        await db.insert(
+          'glucose_readings',
+          {
+            'timestamp': data['timestamp'] ?? DateTime.now().toIso8601String(),
+            'glucose_level': data['glucose_level'],
+            'temperature': data['temperature'],
+            'humidity': data['humidity'],
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        print("✅ Glucose data saved: $data");
+      } else {
+        print("⚠️ Duplicate entry skipped: $data");
+      }
     } catch (e) {
       print("❌ Error saving glucose data: $e");
     }

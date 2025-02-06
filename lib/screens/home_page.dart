@@ -8,7 +8,6 @@ import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
 import '../providers/glucose_provider.dart';
-import '../services/database_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,8 +17,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final DatabaseService _databaseService = DatabaseService(); // SQLite Instance
-
   // ✅ State variables for fetched data
   String userName = "Jingjing";
 
@@ -40,10 +37,13 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false;
 
   @override
-  @override
   void initState() {
     super.initState();
-    Provider.of<GlucoseProvider>(context, listen: false).fetchData();
+
+    // Delaying the provider access until the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<GlucoseProvider>(context, listen: false).fetchData();
+    });
   }
 
   @override
@@ -81,24 +81,21 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CurrentGlucoseCard(
-                        value: glucoseProvider.currentGlucose,
+                        value: glucoseProvider.currentGlucose.toString(),
                         unit: glucoseProvider.glucoseUnit,
                         time: glucoseProvider.glucoseTime,
                       ),
                       AvgGlucoseCard(
-                        max: glucoseProvider.maxGlucose,
-                        avg: glucoseProvider.avgGlucose,
-                        min: glucoseProvider.minGlucose,
+                        max: glucoseProvider.maxGlucose.toString(),
+                        avg: glucoseProvider.avgGlucose.toString(),
+                        min: glucoseProvider.minGlucose.toString(),
                         date: glucoseProvider.glucoseDate,
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
                   // ✅ Info Card with glucose data
-                  InfoCard(
-                      glucoseValue:
-                          double.tryParse(glucoseProvider.currentGlucose) ??
-                              0.0),
+                  InfoCard(glucoseValue: glucoseProvider.currentGlucose),
                   const SizedBox(height: 20),
                   SensorStatusCard(
                     isConnected: glucoseProvider.isConnected,

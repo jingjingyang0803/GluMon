@@ -4,7 +4,7 @@ import 'package:glu_mon/screens/base_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  (
+  runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GlucoseProvider()),
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Glucose Monitor',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
-  final double glucoseValue; // Only pass the glucose value
+  final int glucoseValue; // Only pass the glucose value
 
   const InfoCard({super.key, required this.glucoseValue});
 
