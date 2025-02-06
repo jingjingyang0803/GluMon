@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:glu_mon/components/welcome_title.dart';
+import 'package:provider/provider.dart';
 
 import '../components/avg_glucose_card.dart';
 import '../components/current_glucose_card.dart';
 import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
+import '../providers/glucose_provider.dart';
 import '../services/database_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -38,56 +40,16 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false;
 
   @override
+  @override
   void initState() {
     super.initState();
-    _fetchData(); // ✅ Fetch data from SQLite when HomePage loads
-  }
-
-  /// **Fetch Data from SQLite Database**
-  Future<void> _fetchData() async {
-    try {
-      final readings = await _databaseService.getGlucoseReadings();
-      final sensorStatus = await _databaseService.getDeviceStatus();
-
-      if (readings.isNotEmpty) {
-        setState(() {
-          var latestReading = readings.first;
-          currentGlucose = latestReading['glucose_level'].toString();
-          glucoseTime = latestReading['timestamp']; // Assuming timestamp format
-        });
-
-        // Fetch daily min/max/avg glucose levels
-        final dailyStats = await _databaseService.getDailyMinMaxAvg();
-        if (dailyStats.isNotEmpty) {
-          setState(() {
-            maxGlucose = dailyStats.first['max_glucose'].toString();
-            avgGlucose = dailyStats.first['avg_glucose'].toString();
-            minGlucose = dailyStats.first['min_glucose'].toString();
-            glucoseDate = dailyStats.first['date']; // Format date properly
-          });
-        }
-      }
-
-      if (sensorStatus != null) {
-        setState(() {
-          isConnected = sensorStatus['connection_status'] == 'connected';
-          batteryLevel = sensorStatus['battery_level'];
-        });
-      }
-
-      setState(() {
-        isLoading = false; // Stop loading
-      });
-    } catch (e) {
-      print("❌ Error fetching data from SQLite: $e");
-      setState(() {
-        isLoading = false; // Stop loading in case of error
-      });
-    }
+    Provider.of<GlucoseProvider>(context, listen: false).fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
+    final glucoseProvider = Provider.of<GlucoseProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: PreferredSize(
@@ -119,40 +81,34 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CurrentGlucoseCard(
-                          value: currentGlucose,
-                          unit: glucoseUnit,
-                          time: glucoseTime),
+                        value: glucoseProvider.currentGlucose,
+                        unit: glucoseProvider.glucoseUnit,
+                        time: glucoseProvider.glucoseTime,
+                      ),
                       AvgGlucoseCard(
-                          max: maxGlucose,
-                          avg: avgGlucose,
-                          min: minGlucose,
-                          date: glucoseDate),
+                        max: glucoseProvider.maxGlucose,
+                        avg: glucoseProvider.avgGlucose,
+                        min: glucoseProvider.minGlucose,
+                        date: glucoseProvider.glucoseDate,
+                      ),
                     ],
                   ),
                   SizedBox(height: 20),
-
                   // ✅ Info Card with glucose data
                   InfoCard(
-                    glucoseValue: double.tryParse(currentGlucose) ??
-                        0.0, // Convert string to double
-                  ),
-
-                  SizedBox(height: 20),
-
-                  // ✅ Sensor Status Card
+                      glucoseValue:
+                          double.tryParse(glucoseProvider.currentGlucose) ??
+                              0.0),
+                  const SizedBox(height: 20),
                   SensorStatusCard(
-                    isConnected: isConnected,
-                    batteryLevel: batteryLevel,
+                    isConnected: glucoseProvider.isConnected,
+                    batteryLevel: glucoseProvider.batteryLevel,
                   ),
-
-                  SizedBox(height: 20),
-
-                  // ✅ Humidity & Temperature Card
+                  const SizedBox(height: 20),
                   HumidityTemperatureCard(
-                    humidity: humidity,
-                    temperature: temperature,
+                    humidity: glucoseProvider.humidity,
+                    temperature: glucoseProvider.temperature,
                   ),
-
                   Spacer(),
                 ],
               ),

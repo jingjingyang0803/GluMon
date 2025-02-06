@@ -15,7 +15,7 @@ class BaseScreen extends StatefulWidget {
 }
 
 class BaseScreenState extends State<BaseScreen> {
-  final int _selectedIndex = 0; // Default page index (HomeScreen)
+  final int _selectedIndex = 2; // Default page index (HomeScreen)
 
   // List of pages for navigation
   final List<Widget> _pages = [

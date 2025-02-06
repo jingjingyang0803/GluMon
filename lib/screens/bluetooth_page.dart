@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble;
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
@@ -5,6 +7,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/bluetooth_service.dart';
+import '../services/database_service.dart';
 import '../utils/color_utils.dart';
 
 class BluetoothPage extends StatefulWidget {
@@ -154,10 +157,14 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Connection Status Wrapped in a Card**
   Widget _buildConnectionStatusCard() {
+    final DatabaseService _databaseService =
+        DatabaseService(); // Initialize Database
+
     return StreamBuilder<bool>(
       stream: _bluetoothService.connectionStatusStream,
       builder: (context, snapshot) {
         bool isConnected = snapshot.data ?? false;
+
         return Card(
           elevation: 4,
           color: Colors.white,
@@ -192,13 +199,41 @@ class BluetoothPageState extends State<BluetoothPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // ✅ Automatically save glucose readings to the database
                 StreamBuilder<String>(
-                  stream:
-                      _bluetoothService.dataStream, // ✅ Listen to data updates
+                  stream: _bluetoothService.dataStream,
                   builder: (context, snapshot) {
                     String receivedData = snapshot.data ?? "No data yet";
+
+                    // ✅ Parse and save data whenever it updates
+                    if (snapshot.hasData) {
+                      try {
+                        Map<String, dynamic> jsonData =
+                            jsonDecode(receivedData);
+
+                        double glucose = jsonData["glucose"] ?? 0.0;
+                        double temperature = jsonData["temp"] ?? 0.0;
+                        double humidity = jsonData["humidity"] ?? 0.0;
+                        String timestamp = jsonData["timestamp"] ??
+                            DateTime.now().toIso8601String();
+
+                        // Save to database
+                        _databaseService.saveGlucoseReading({
+                          'glucose_level': glucose,
+                          'temperature': temperature,
+                          'humidity': humidity,
+                          'timestamp': timestamp,
+                        });
+
+                        print("✅ Data saved to database: $jsonData");
+                      } catch (e) {
+                        print("⚠️ JSON Parse Error: $e");
+                      }
+                    }
+
                     return Text(
-                      receivedData, // ✅ Displays live data updates
+                      receivedData,
                       style: GoogleFonts.poppins(
                           fontSize: 14, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
@@ -206,6 +241,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                   },
                 ),
                 const SizedBox(height: 20),
+
                 if (isConnected)
                   ElevatedButton(
                     onPressed: _bluetoothService.disconnect,

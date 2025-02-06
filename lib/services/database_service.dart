@@ -327,4 +327,24 @@ class DatabaseService {
       _log.severe("❌ Error closing database: $e");
     }
   }
+
+  /// **Save Glucose Data**
+  Future<void> saveGlucoseReading(Map<String, dynamic> data) async {
+    try {
+      final db = await database;
+      await db.insert(
+        'glucose_readings',
+        {
+          'timestamp': data['timestamp'] ?? DateTime.now().toIso8601String(),
+          'glucose_level': data['glucose_level'],
+          'temperature': data['temperature'],
+          'humidity': data['humidity'],
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print("✅ Glucose data saved: $data");
+    } catch (e) {
+      print("❌ Error saving glucose data: $e");
+    }
+  }
 }

@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble; // BLE
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
     as bt_serial;
-import 'package:rxdart/rxdart.dart'; // Import this at the top
+import 'package:rxdart/rxdart.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'database_service.dart'; // Classic Bluetooth
@@ -61,19 +61,19 @@ class BluetoothService {
 
   void _parseAndEmitData(String rawData) {
     try {
-      // Parse JSON data from ESP32
       Map<String, dynamic> jsonData = jsonDecode(rawData);
-      String glucose = jsonData["glucose"].toString();
-      String temperature = jsonData["temp"].toString();
-      String humidity = jsonData["humidity"].toString();
-      String timestamp = jsonData["timestamp"].toString();
 
-      String formattedData = "🩸 Glucose: $glucose mg/dL\n"
-          "🌡 Temp: $temperature°C\n"
-          "💧 Humidity: $humidity%\n"
-          "⏳ Time: $timestamp ms";
+      Map<String, dynamic> formattedData = {
+        'glucose_level': jsonData["glucose"],
+        'temperature': jsonData["temp"],
+        'humidity': jsonData["humidity"],
+        'timestamp': DateTime.now().toIso8601String(),
+      };
 
-      _dataStream.add(formattedData); // ✅ Send to UI
+      _dataStream.add("🩸 Glucose: ${formattedData['glucose_level']} mg/dL\n"
+          "🌡 Temp: ${formattedData['temperature']}°C\n"
+          "💧 Humidity: ${formattedData['humidity']}%\n"
+          "⏳ Time: ${formattedData['timestamp']}");
 
       print("📩 Data received and parsed: \n$formattedData");
     } catch (e) {

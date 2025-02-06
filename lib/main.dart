@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/providers/glucose_provider.dart';
 import 'package:glu_mon/screens/base_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  (
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => GlucoseProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
