@@ -20,6 +20,9 @@ class BluetoothPage extends StatefulWidget {
 class BluetoothPageState extends State<BluetoothPage> {
   late final BluetoothService _bluetoothService;
 
+  final DatabaseService databaseService =
+      DatabaseService(); // Initialize Database
+
   @override
   void initState() {
     super.initState();
@@ -75,11 +78,8 @@ class BluetoothPageState extends State<BluetoothPage> {
                       if (glucose != null &&
                           temperature != null &&
                           humidity != null) {
-                        final DatabaseService _databaseService =
-                            DatabaseService();
-
                         // ✅ Check if data already exists before saving
-                        _databaseService.saveGlucoseReading({
+                        databaseService.saveGlucoseReading({
                           'glucose_level': glucose,
                           'temperature': temperature,
                           'humidity': humidity,
@@ -199,9 +199,6 @@ class BluetoothPageState extends State<BluetoothPage> {
 
   /// **Connection Status Wrapped in a Card**
   Widget _buildConnectionStatusCard() {
-    final DatabaseService _databaseService =
-        DatabaseService(); // Initialize Database
-
     return StreamBuilder<bool>(
       stream: _bluetoothService.connectionStatusStream,
       builder: (context, snapshot) {
@@ -261,7 +258,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                             DateTime.now().toIso8601String();
 
                         // Save to database
-                        _databaseService.saveGlucoseReading({
+                        databaseService.saveGlucoseReading({
                           'glucose_level': glucose,
                           'temperature': temperature,
                           'humidity': humidity,

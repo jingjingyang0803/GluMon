@@ -320,7 +320,7 @@ class DatabaseService {
   /// **Close Database**
   Future<void> closeDatabase() async {
     try {
-      final db = await _database;
+      final db = _database;
       if (db != null) {
         await db.close();
         _log.info("🔴 Database connection closed.");

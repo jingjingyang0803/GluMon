@@ -7,12 +7,12 @@ class GlucoseCard extends StatelessWidget {
   final Color color;
 
   const GlucoseCard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.time,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

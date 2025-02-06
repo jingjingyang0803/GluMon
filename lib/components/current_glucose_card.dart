@@ -15,9 +15,6 @@ class CurrentGlucoseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double glucoseValue =
-        double.tryParse(value) ?? 0.0; // Convert value to double
-
     return Container(
       width: MediaQuery.of(context).size.width * 0.4,
       padding: EdgeInsets.all(16),

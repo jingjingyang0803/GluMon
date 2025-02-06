@@ -43,19 +43,18 @@ class SettingsPageState extends State<SettingsPage> {
   Future<void> _loadSettings() async {
     try {
       var settings = await _databaseService.getSettings();
-      if (settings != null) {
-        setState(() {
-          enableVibration = settings['enableVibration'] == 1;
-          enableCallAlert = settings['enableCallAlert'] == 1;
-          enableAlarm = settings['enableAlarm'] == 1;
-          muteNotifications = settings['muteNotifications'] == 1;
-          selectedInterval = settings['selectedInterval'] ?? 5;
-          veryLow = settings['veryLow'] ?? 60.0;
-          veryHigh = settings['veryHigh'] ?? 200.0;
-          bigDrop = settings['bigDrop'] ?? 15.0;
-          bigRise = settings['bigRise'] ?? 25.0;
-        });
-      }
+
+      setState(() {
+        enableVibration = settings['enableVibration'] == 1;
+        enableCallAlert = settings['enableCallAlert'] == 1;
+        enableAlarm = settings['enableAlarm'] == 1;
+        muteNotifications = settings['muteNotifications'] == 1;
+        selectedInterval = settings['selectedInterval'] ?? 5;
+        veryLow = settings['veryLow'] ?? 60.0;
+        veryHigh = settings['veryHigh'] ?? 200.0;
+        bigDrop = settings['bigDrop'] ?? 15.0;
+        bigRise = settings['bigRise'] ?? 25.0;
+      });
     } catch (e) {
       print("❌ Error loading settings: $e");
     } finally {

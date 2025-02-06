@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
 class GlucosePredictorPage extends StatefulWidget {
+  const GlucosePredictorPage({super.key});
+
   @override
-  _GlucosePredictorPageState createState() => _GlucosePredictorPageState();
+  GlucosePredictorPageState createState() => GlucosePredictorPageState();
 }
 
-class _GlucosePredictorPageState extends State<GlucosePredictorPage> {
+class GlucosePredictorPageState extends State<GlucosePredictorPage> {
   late tfl.Interpreter _interpreter;
   double? _predictedGlucose;
 

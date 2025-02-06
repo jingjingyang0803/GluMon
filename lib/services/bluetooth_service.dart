@@ -18,6 +18,8 @@ class BluetoothService {
 
   BluetoothService._internal();
 
+  final DatabaseService _databaseService = DatabaseService();
+
   // Classic Bluetooth (SPP)
   final bt_serial.FlutterBluetoothSerial _bluetoothSerial =
       bt_serial.FlutterBluetoothSerial.instance;
@@ -81,7 +83,6 @@ class BluetoothService {
         print("📩 Data received and parsed: $formattedData");
 
         // ✅ Save to database
-        final DatabaseService _databaseService = DatabaseService();
         _databaseService.saveGlucoseReading(formattedData);
       } else {
         print("⚠️ Invalid JSON format: $rawData");
