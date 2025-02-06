@@ -233,6 +233,8 @@ class BluetoothService {
   }
 
   /// **Connect to BLE Device**
+  bool _isListeningToCharacteristic = false; // ✅ Add this flag at class level
+
   Future<void> connectToBleDevice(bt_ble.BluetoothDevice device) async {
     try {
       await disconnect(); // Ensure previous connections are closed
@@ -248,14 +250,17 @@ class BluetoothService {
       var services = await device.discoverServices();
       for (var service in services) {
         for (var characteristic in service.characteristics) {
-          if (characteristic.properties.notify) {
+          if (characteristic.properties.notify &&
+              !_isListeningToCharacteristic) {
+            _isListeningToCharacteristic =
+                true; // ✅ Set flag to prevent duplicate subscriptions
+
             await characteristic.setNotifyValue(true);
             characteristic.lastValueStream.listen((value) {
               try {
                 String decodedData = utf8.decode(value);
                 print("📩 Received from ESP32: $decodedData");
 
-                // 🔥 Call `_parseAndEmitData()` to process the received BLE data
                 _parseAndEmitData(decodedData);
               } catch (e) {
                 print("⚠️ BLE Data Decode Error: $e");

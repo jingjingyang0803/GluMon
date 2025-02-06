@@ -58,49 +58,8 @@ class BluetoothPageState extends State<BluetoothPage> {
             StreamBuilder<String>(
               stream: _bluetoothService.dataStream,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  String receivedData = snapshot.data ?? "";
-
-                  // ✅ Trim and ensure proper JSON format
-                  receivedData = receivedData.trim();
-                  if (receivedData.startsWith('{') &&
-                      receivedData.endsWith('}')) {
-                    try {
-                      Map<String, dynamic> jsonData = jsonDecode(receivedData);
-
-                      double? glucose = jsonData["glucose"];
-                      double? temperature = jsonData["temp"];
-                      double? humidity = jsonData["humidity"];
-                      String timestamp = jsonData["timestamp"] ??
-                          DateTime.now().toIso8601String();
-
-                      // ✅ Ensure no null values before saving
-                      if (glucose != null &&
-                          temperature != null &&
-                          humidity != null) {
-                        // ✅ Check if data already exists before saving
-                        databaseService.saveGlucoseReading({
-                          'glucose_level': glucose,
-                          'temperature': temperature,
-                          'humidity': humidity,
-                          'timestamp': timestamp,
-                        });
-
-                        print("✅ Data saved to database: $jsonData");
-                      } else {
-                        print(
-                            "⚠️ Skipping save due to missing values: $jsonData");
-                      }
-                    } catch (e) {
-                      print(
-                          "⚠️ JSON Parse Error: $e \nReceived Data: $receivedData");
-                    }
-                  } else {
-                    print("⚠️ Invalid JSON format: $receivedData");
-                  }
-                }
-
-                return const SizedBox.shrink(); // No UI needed
+                return const SizedBox
+                    .shrink(); // ✅ Only listen, no re-parsing or saving
               },
             ),
 
