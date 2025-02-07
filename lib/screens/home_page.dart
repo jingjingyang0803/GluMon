@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final glucoseProvider = Provider.of<GlucoseProvider>(context);
 
@@ -55,50 +56,68 @@ class _HomePageState extends State<HomePage> {
       body: glucoseProvider.isLoading
           ? Center(
               child: CircularProgressIndicator()) // ✅ Show loading indicator
-          : Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 20),
-                  Text('Today',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          : (glucoseProvider.currentGlucose == null
+              ? Center(
+                  child: Text(
+                    "Please connect to device first",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ) // ✅ Show message if no data
+              : _buildMainContent(
+                  glucoseProvider)), // ✅ Extract UI into a method
+    );
+  }
 
-                  // ✅ Glucose Data Cards
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CurrentGlucoseCard(
-                        value: glucoseProvider.currentGlucose.toString(),
-                        unit: glucoseProvider.glucoseUnit,
-                        time: glucoseProvider.glucoseTime,
-                      ),
-                      AvgGlucoseCard(
-                        max: glucoseProvider.maxGlucose.toString(),
-                        avg: glucoseProvider.avgGlucose.toString(),
-                        min: glucoseProvider.minGlucose.toString(),
-                        date: glucoseProvider.glucoseDate,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  // ✅ Info Card with glucose data
-                  InfoCard(glucoseValue: glucoseProvider.currentGlucose),
-                  const SizedBox(height: 20),
-                  SensorStatusCard(
-                    isConnected: glucoseProvider.isConnected,
-                    batteryLevel: glucoseProvider.batteryLevel,
-                  ),
-                  const SizedBox(height: 20),
-                  HumidityTemperatureCard(
-                    humidity: glucoseProvider.humidity,
-                    temperature: glucoseProvider.temperature,
-                  ),
-                  Spacer(),
-                ],
+  Widget _buildMainContent(GlucoseProvider glucoseProvider) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 20),
+          Text(
+            'Today',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: CurrentGlucoseCard(
+                  value: glucoseProvider.currentGlucose?.toString() ?? "--",
+                  unit: glucoseProvider.glucoseUnit ?? "mg/dL",
+                  time: glucoseProvider.glucoseTime ?? "--",
+                ),
               ),
-            ),
+              SizedBox(width: 10),
+              Expanded(
+                child: AvgGlucoseCard(
+                  max: glucoseProvider.maxGlucose?.toString() ?? "--",
+                  avg: glucoseProvider.avgGlucose?.toString() ?? "--",
+                  min: glucoseProvider.minGlucose?.toString() ?? "--",
+                  date: glucoseProvider.glucoseDate ?? "--",
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          InfoCard(
+              glucoseValue:
+                  glucoseProvider.currentGlucose ?? 0), // ✅ Default to 0
+          SizedBox(height: 20),
+          SensorStatusCard(
+            isConnected: glucoseProvider.isConnected,
+            batteryLevel: glucoseProvider.batteryLevel ?? 0, // ✅ Default to 0
+          ),
+          SizedBox(height: 20),
+          HumidityTemperatureCard(
+            humidity: glucoseProvider.humidity ?? 0.0, // ✅ Default to 0.0
+            temperature: glucoseProvider.temperature ?? 0.0, // ✅ Default to 0.0
+          ),
+          Spacer(),
+        ],
+      ),
     );
   }
 }

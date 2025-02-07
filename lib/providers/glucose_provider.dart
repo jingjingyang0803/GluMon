@@ -7,18 +7,51 @@ import '../services/database_service.dart';
 class GlucoseProvider with ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
 
-  int currentGlucose = 165;
+  int? currentGlucose; // ✅ Change to nullable
   String glucoseUnit = "mg/dL";
-  String glucoseTime = "5 min ago";
-  int maxGlucose = 180;
-  int avgGlucose = 120;
-  int minGlucose = 95;
-  String glucoseDate = "Fri 26. Jan";
+  String? glucoseTime;
+  int? maxGlucose;
+  int? avgGlucose;
+  int? minGlucose;
+  String? glucoseDate;
   bool isConnected = false;
-  int batteryLevel = 45;
-  double temperature = 36.5;
-  double humidity = 55.0;
+  int? batteryLevel;
+  double? temperature;
+  double? humidity;
   bool isLoading = false;
+
+  Future<void> fetchData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final readings = await _databaseService.getGlucoseReadings();
+      if (readings.isNotEmpty) {
+        var latestReading = readings.first;
+        currentGlucose = (latestReading['glucose_level'] as num).toInt();
+        glucoseTime = latestReading['timestamp'];
+        temperature = latestReading['temperature'];
+        humidity = latestReading['humidity'];
+      } else {
+        currentGlucose = null; // ✅ No data means it's null
+      }
+
+      final dailyStats = await _databaseService.getDailyMinMaxAvg();
+      if (dailyStats.isNotEmpty) {
+        maxGlucose = (dailyStats.first['max_glucose'] as num).toInt();
+        avgGlucose = (dailyStats.first['avg_glucose'] as num).toInt();
+        minGlucose = (dailyStats.first['min_glucose'] as num).toInt();
+        glucoseDate = dailyStats.first['date'];
+      }
+
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      print("❌ Error fetching data: $e");
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   void startListeningToBluetooth(Stream<String> dataStream) {
     dataStream.listen((data) {
@@ -37,37 +70,6 @@ class GlucoseProvider with ChangeNotifier {
         print("⚠️ Error parsing Bluetooth data: $e");
       }
     });
-  }
-
-  Future<void> fetchData() async {
-    isLoading = true;
-    notifyListeners(); // 🔥 Ensure UI knows data fetching started
-
-    try {
-      final readings = await _databaseService.getGlucoseReadings();
-      if (readings.isNotEmpty) {
-        var latestReading = readings.first;
-        currentGlucose = (latestReading['glucose_level'] as num).toInt();
-        glucoseTime = latestReading['timestamp'];
-        temperature = latestReading['temperature'];
-        humidity = latestReading['humidity'];
-      }
-
-      final dailyStats = await _databaseService.getDailyMinMaxAvg();
-      if (dailyStats.isNotEmpty) {
-        maxGlucose = (dailyStats.first['max_glucose'] as num).toInt();
-        avgGlucose = (dailyStats.first['avg_glucose'] as num).toInt();
-        minGlucose = (dailyStats.first['min_glucose'] as num).toInt();
-        glucoseDate = dailyStats.first['date'];
-      }
-
-      isLoading = false;
-      notifyListeners(); // 🔥 Notify UI after data is updated
-    } catch (e) {
-      print("❌ Error fetching data: $e");
-      isLoading = false;
-      notifyListeners(); // ❗ Make sure to notify UI even on error
-    }
   }
 
   /// **Update Data when Sensor Sends New Readings**
