@@ -16,7 +16,32 @@ class BluetoothService {
 
   factory BluetoothService() => _instance;
 
-  BluetoothService._internal();
+  BluetoothService._internal() {
+    bool lastStatus = false; // ✅ Track previous state to prevent infinite loops
+
+    connectionStatusStream.listen((isConnected) {
+      if (isConnected != lastStatus) {
+        // ✅ Only update if status actually changes
+        lastStatus = isConnected;
+
+        emitCurrentDeviceName();
+        listenToData(); // 🔥 Ensure data stream is resubscribed
+      }
+    });
+  }
+
+  void listenToData() {
+    if (_isClassicConnected && _classicConnection != null) {
+      _classicConnection!.input!.listen((Uint8List data) {
+        try {
+          String decodedData = utf8.decode(data);
+          _dataStream.add(decodedData);
+        } catch (e) {
+          print("⚠️ Classic Bluetooth Data Decode Error: $e");
+        }
+      });
+    }
+  }
 
   final DatabaseService _databaseService = DatabaseService();
 
@@ -93,14 +118,12 @@ class BluetoothService {
   }
 
   void emitCurrentDeviceName() {
-    if (_selectedBleDevice != null) {
-      print(
-          "🔵 Emitting last connected device: ${_selectedBleDevice!.platformName}");
-      _deviceNameStream.add(_selectedBleDevice!.platformName);
-      updateConnectionStatus(true); // 🔥 Ensure connection status is updated
+    if (isConnected) {
+      _deviceNameStream
+          .add(_selectedBleDevice?.platformName ?? "Unknown Device");
+      updateConnectionStatus(true);
     } else {
-      print("⚠️ No device found, emitting 'None'");
-      _deviceNameStream.add("None");
+      _deviceNameStream.add("None"); // 🔥 Force update to UI
       updateConnectionStatus(false);
     }
   }
@@ -186,6 +209,12 @@ class BluetoothService {
           await bt_serial.BluetoothConnection.toAddress(device.address);
       _isClassicConnected = true;
 
+      _classicConnection!.output
+          .add(utf8.encode("START")); // 🔥 Restart ESP32 Data Stream
+      await _classicConnection!.output.allSent;
+
+      print("✅ Sent START command to ESP32");
+
       // ✅ Emit status to streams
       _deviceNameStream.add(
           device.name?.isNotEmpty == true ? device.name! : "Unknown Device");
@@ -250,17 +279,14 @@ class BluetoothService {
       var services = await device.discoverServices();
       for (var service in services) {
         for (var characteristic in service.characteristics) {
-          if (characteristic.properties.notify &&
-              !_isListeningToCharacteristic) {
-            _isListeningToCharacteristic =
-                true; // ✅ Set flag to prevent duplicate subscriptions
-
+          if (characteristic.properties.notify) {
+            print("🔔 Subscribing to BLE notifications...");
             await characteristic.setNotifyValue(true);
+
             characteristic.lastValueStream.listen((value) {
               try {
                 String decodedData = utf8.decode(value);
                 print("📩 Received from ESP32: $decodedData");
-
                 _parseAndEmitData(decodedData);
               } catch (e) {
                 print("⚠️ BLE Data Decode Error: $e");
@@ -310,27 +336,25 @@ class BluetoothService {
       if (_isClassicConnected) {
         _classicConnection?.finish();
         _isClassicConnected = false;
+        _classicConnection = null; // Ensure cleanup
       }
       if (_isBleConnected) {
         await _selectedBleDevice?.disconnect();
         _isBleConnected = false;
+        _selectedBleDevice = null; // Ensure cleanup
       }
 
-      _connectionStatusStream.add(false);
+      // Reset the device name and status
       _deviceNameStream.add("None");
+      _connectionStatusStream.add(false);
+
+      print("🔴 Successfully disconnected from Bluetooth");
+
+      // Keep the stream open, but clear any lingering data
       _dataStream.add("No data yet");
 
-      print("🔴 Disconnected from Bluetooth");
-
-      // ✅ Update database to mark device as disconnected
-      final db = await DatabaseService().database;
-      await db.update(
-        'devices',
-        {'connection_status': 'disconnected'},
-        where: 'id = ?',
-        whereArgs: [1],
-      );
-      print("🔴 Database updated: Device set to disconnected.");
+      // Ensure UI updates by forcing the emission of the latest state
+      emitCurrentDeviceName();
     } catch (e) {
       print("❌ Error while disconnecting Bluetooth: $e");
     }
