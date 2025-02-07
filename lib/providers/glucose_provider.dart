@@ -19,6 +19,7 @@ class GlucoseProvider with ChangeNotifier {
   bool isLoading = false;
 
   Future<void> fetchData() async {
+    print("📡 Fetching glucose data...");
     isLoading = true;
     notifyListeners();
 
@@ -32,6 +33,7 @@ class GlucoseProvider with ChangeNotifier {
         glucoseTime = latestReading['timestamp'];
         temperature = latestReading['temperature'];
         humidity = latestReading['humidity'];
+        print("✅ Data Updated: $currentGlucose at $glucoseTime");
       }
 
       final dailyStats = await _databaseService.getDailyMinMaxAvg();
@@ -40,15 +42,20 @@ class GlucoseProvider with ChangeNotifier {
         avgGlucose = (dailyStats.first['avg_glucose'] as num).toInt();
         minGlucose = (dailyStats.first['min_glucose'] as num).toInt();
         glucoseDate = dailyStats.first['date'];
+        print(
+            "📊 Daily Stats Updated: Max $maxGlucose, Avg $avgGlucose, Min $minGlucose");
       }
 
       if (sensorStatus != null) {
         isConnected = sensorStatus['connection_status'] == 'connected';
         batteryLevel = sensorStatus['battery_level'];
+        print(
+            "🔋 Sensor Status: Connected: $isConnected, Battery: $batteryLevel%");
       }
 
       isLoading = false;
-      notifyListeners();
+      notifyListeners(); // 🔥 Ensure UI updates
+      print("🎉 UI Notified!");
     } catch (e) {
       print("❌ Error fetching data: $e");
       isLoading = false;

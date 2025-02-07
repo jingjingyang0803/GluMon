@@ -55,14 +55,6 @@ class BluetoothPageState extends State<BluetoothPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            StreamBuilder<String>(
-              stream: _bluetoothService.dataStream,
-              builder: (context, snapshot) {
-                return const SizedBox
-                    .shrink(); // ✅ Only listen, no re-parsing or saving
-              },
-            ),
-
             // Use Expanded to prevent overflow
             Expanded(
               child: ListView(

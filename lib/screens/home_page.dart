@@ -20,21 +20,21 @@ class _HomePageState extends State<HomePage> {
   // ✅ State variables for fetched data
   String userName = "Jingjing";
 
-  bool isConnected = false;
-  int batteryLevel = 45;
-  double temperature = 36.5; // Fake temperature in °C
-  double humidity = 55.0; // Fake humidity in %
-
-  String currentGlucose = "165";
-  String glucoseUnit = "mg/dL";
-  String glucoseTime = "5 min ago";
-  String maxGlucose = "180";
-  String avgGlucose = "120";
-  String minGlucose = "95";
-  String glucoseDate = "Fri 26. Jan";
+  // bool isConnected = false;
+  // int batteryLevel = 45;
+  // double temperature = 36.5; // Fake temperature in °C
+  // double humidity = 55.0; // Fake humidity in %
+  //
+  // String currentGlucose = "165";
+  // String glucoseUnit = "mg/dL";
+  // String glucoseTime = "5 min ago";
+  // String maxGlucose = "180";
+  // String avgGlucose = "120";
+  // String minGlucose = "95";
+  // String glucoseDate = "Fri 26. Jan";
 
   // bool isLoading = true;
-  bool isLoading = false;
+  // bool isLoading = false;
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      body: isLoading
+      body: glucoseProvider.isLoading
           ? Center(
               child: CircularProgressIndicator()) // ✅ Show loading indicator
           : Padding(
