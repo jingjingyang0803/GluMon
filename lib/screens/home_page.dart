@@ -22,16 +22,19 @@ class _HomePageState extends State<HomePage> {
   String userName = "Jingjing";
 
   @override
-  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final glucoseProvider =
           Provider.of<GlucoseProvider>(context, listen: false);
+      final bluetoothService = BluetoothService();
+
       glucoseProvider.fetchData();
       glucoseProvider.startListeningToBluetooth(
-          BluetoothService().dataStream // 🔥 Connection Status Stream
-          );
+        bluetoothService.dataStream, // 🔥 Pass the Data Stream
+        bluetoothService
+            .connectionStatusStream, // 🔥 Pass the Connection Status Stream
+      );
     });
   }
 

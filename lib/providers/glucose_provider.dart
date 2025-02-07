@@ -53,7 +53,15 @@ class GlucoseProvider with ChangeNotifier {
     }
   }
 
-  void startListeningToBluetooth(Stream<String> dataStream) {
+  void startListeningToBluetooth(
+      Stream<String> dataStream, Stream<bool> connectionStream) {
+    // 🔥 Listen for connection status updates
+    connectionStream.listen((bool status) {
+      isConnected = status;
+      notifyListeners(); // 🔥 Update UI when connection status changes
+    });
+
+    // 🔥 Listen for incoming glucose data
     dataStream.listen((data) {
       try {
         Map<String, dynamic> jsonData = jsonDecode(data);
@@ -62,8 +70,6 @@ class GlucoseProvider with ChangeNotifier {
         glucoseTime = jsonData['timestamp'];
         temperature = jsonData['temp'] ?? temperature;
         humidity = jsonData['humidity'] ?? humidity;
-
-        isConnected = jsonData['isConnected'] ?? isConnected;
 
         notifyListeners(); // 🔥 Notify UI of new Bluetooth data
       } catch (e) {

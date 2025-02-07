@@ -121,10 +121,10 @@ class BluetoothService {
     if (isConnected) {
       _deviceNameStream
           .add(_selectedBleDevice?.platformName ?? "Unknown Device");
-      updateConnectionStatus(true);
+      updateConnectionStatus(true); // ✅ Ensure it updates status
     } else {
-      _deviceNameStream.add("None"); // 🔥 Force update to UI
-      updateConnectionStatus(false);
+      _deviceNameStream.add("None");
+      updateConnectionStatus(false); // ✅ Force UI update
     }
   }
 
