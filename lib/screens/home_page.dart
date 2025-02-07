@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           SizedBox(height: 20),
           Text(
-            'Today',
+            'Last Measure',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           Row(
@@ -104,19 +104,19 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           InfoCard(
               glucoseValue:
                   glucoseProvider.currentGlucose ?? 0), // ✅ Default to 0
+          SizedBox(height: 10),
+          HumidityTemperatureCard(
+            humidity: glucoseProvider.humidity ?? 0.0, // ✅ Default to 0.0
+            temperature: glucoseProvider.temperature ?? 0.0, // ✅ Default to 0.0
+          ),
           SizedBox(height: 20),
           SensorStatusCard(
             isConnected: glucoseProvider.isConnected,
             batteryLevel: glucoseProvider.batteryLevel ?? 0, // ✅ Default to 0
-          ),
-          SizedBox(height: 20),
-          HumidityTemperatureCard(
-            humidity: glucoseProvider.humidity ?? 0.0, // ✅ Default to 0.0
-            temperature: glucoseProvider.temperature ?? 0.0, // ✅ Default to 0.0
           ),
           Spacer(),
         ],
