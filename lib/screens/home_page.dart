@@ -8,6 +8,7 @@ import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
 import '../providers/glucose_provider.dart';
+import '../services/bluetooth_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,29 +21,17 @@ class _HomePageState extends State<HomePage> {
   // ✅ State variables for fetched data
   String userName = "Jingjing";
 
-  // bool isConnected = false;
-  // int batteryLevel = 45;
-  // double temperature = 36.5; // Fake temperature in °C
-  // double humidity = 55.0; // Fake humidity in %
-  //
-  // String currentGlucose = "165";
-  // String glucoseUnit = "mg/dL";
-  // String glucoseTime = "5 min ago";
-  // String maxGlucose = "180";
-  // String avgGlucose = "120";
-  // String minGlucose = "95";
-  // String glucoseDate = "Fri 26. Jan";
-
-  // bool isLoading = true;
-  // bool isLoading = false;
-
+  @override
   @override
   void initState() {
     super.initState();
-
-    // Delaying the provider access until the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GlucoseProvider>(context, listen: false).fetchData();
+      final glucoseProvider =
+          Provider.of<GlucoseProvider>(context, listen: false);
+      glucoseProvider.fetchData();
+      glucoseProvider.startListeningToBluetooth(
+          BluetoothService().dataStream // 🔥 Connection Status Stream
+          );
     });
   }
 

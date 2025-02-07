@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../services/database_service.dart';
@@ -18,22 +20,37 @@ class GlucoseProvider with ChangeNotifier {
   double humidity = 55.0;
   bool isLoading = false;
 
+  void startListeningToBluetooth(Stream<String> dataStream) {
+    dataStream.listen((data) {
+      try {
+        Map<String, dynamic> jsonData = jsonDecode(data);
+
+        currentGlucose = (jsonData['glucose'] as num).toInt();
+        glucoseTime = jsonData['timestamp'];
+        temperature = jsonData['temp'] ?? temperature;
+        humidity = jsonData['humidity'] ?? humidity;
+
+        isConnected = jsonData['isConnected'] ?? isConnected;
+
+        notifyListeners(); // 🔥 Notify UI of new Bluetooth data
+      } catch (e) {
+        print("⚠️ Error parsing Bluetooth data: $e");
+      }
+    });
+  }
+
   Future<void> fetchData() async {
-    print("📡 Fetching glucose data...");
     isLoading = true;
-    notifyListeners();
+    notifyListeners(); // 🔥 Ensure UI knows data fetching started
 
     try {
       final readings = await _databaseService.getGlucoseReadings();
-      final sensorStatus = await _databaseService.getDeviceStatus();
-
       if (readings.isNotEmpty) {
         var latestReading = readings.first;
         currentGlucose = (latestReading['glucose_level'] as num).toInt();
         glucoseTime = latestReading['timestamp'];
         temperature = latestReading['temperature'];
         humidity = latestReading['humidity'];
-        print("✅ Data Updated: $currentGlucose at $glucoseTime");
       }
 
       final dailyStats = await _databaseService.getDailyMinMaxAvg();
@@ -42,24 +59,14 @@ class GlucoseProvider with ChangeNotifier {
         avgGlucose = (dailyStats.first['avg_glucose'] as num).toInt();
         minGlucose = (dailyStats.first['min_glucose'] as num).toInt();
         glucoseDate = dailyStats.first['date'];
-        print(
-            "📊 Daily Stats Updated: Max $maxGlucose, Avg $avgGlucose, Min $minGlucose");
-      }
-
-      if (sensorStatus != null) {
-        isConnected = sensorStatus['connection_status'] == 'connected';
-        batteryLevel = sensorStatus['battery_level'];
-        print(
-            "🔋 Sensor Status: Connected: $isConnected, Battery: $batteryLevel%");
       }
 
       isLoading = false;
-      notifyListeners(); // 🔥 Ensure UI updates
-      print("🎉 UI Notified!");
+      notifyListeners(); // 🔥 Notify UI after data is updated
     } catch (e) {
       print("❌ Error fetching data: $e");
       isLoading = false;
-      notifyListeners();
+      notifyListeners(); // ❗ Make sure to notify UI even on error
     }
   }
 

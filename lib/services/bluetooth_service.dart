@@ -262,8 +262,6 @@ class BluetoothService {
   }
 
   /// **Connect to BLE Device**
-  bool _isListeningToCharacteristic = false; // ✅ Add this flag at class level
-
   Future<void> connectToBleDevice(bt_ble.BluetoothDevice device) async {
     try {
       await disconnect(); // Ensure previous connections are closed
