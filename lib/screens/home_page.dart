@@ -73,6 +73,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMainContent(GlucoseProvider glucoseProvider) {
+    print("🔄 Rebuilding UI with glucose: ${glucoseProvider.currentGlucose}");
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -89,7 +91,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: CurrentGlucoseCard(
                   value: glucoseProvider.currentGlucose?.toString() ?? "--",
-                  unit: glucoseProvider.glucoseUnit ?? "mg/dL",
+                  unit: glucoseProvider.glucoseUnit,
                   time: glucoseProvider.glucoseTime ?? "--",
                 ),
               ),
@@ -105,18 +107,16 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           SizedBox(height: 10),
-          InfoCard(
-              glucoseValue:
-                  glucoseProvider.currentGlucose ?? 0), // ✅ Default to 0
+          InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
           SizedBox(height: 10),
           HumidityTemperatureCard(
-            humidity: glucoseProvider.humidity ?? 0.0, // ✅ Default to 0.0
-            temperature: glucoseProvider.temperature ?? 0.0, // ✅ Default to 0.0
+            humidity: glucoseProvider.humidity ?? 0.0,
+            temperature: glucoseProvider.temperature ?? 0.0,
           ),
           SizedBox(height: 20),
           SensorStatusCard(
             isConnected: glucoseProvider.isConnected,
-            batteryLevel: glucoseProvider.batteryLevel ?? 0, // ✅ Default to 0
+            batteryLevel: glucoseProvider.batteryLevel ?? 0,
           ),
           Spacer(),
         ],

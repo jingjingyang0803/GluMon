@@ -58,7 +58,7 @@ class GlucoseProvider with ChangeNotifier {
     // 🔥 Listen for connection status updates
     connectionStream.listen((bool status) {
       isConnected = status;
-      notifyListeners(); // 🔥 Update UI when connection status changes
+      notifyListeners(); // ✅ UI updates when connection status changes
     });
 
     // 🔥 Listen for incoming glucose data
@@ -66,12 +66,17 @@ class GlucoseProvider with ChangeNotifier {
       try {
         Map<String, dynamic> jsonData = jsonDecode(data);
 
-        currentGlucose = (jsonData['glucose'] as num).toInt();
-        glucoseTime = jsonData['timestamp'];
-        temperature = jsonData['temp'] ?? temperature;
-        humidity = jsonData['humidity'] ?? humidity;
+        currentGlucose =
+            (jsonData['glucose_level'] as num?)?.toInt() ?? currentGlucose;
+        glucoseTime = jsonData['timestamp'] ?? "--";
+        temperature =
+            (jsonData['temperature'] as num?)?.toDouble() ?? temperature;
+        humidity = (jsonData['humidity'] as num?)?.toDouble() ?? humidity;
 
-        notifyListeners(); // 🔥 Notify UI of new Bluetooth data
+        print(
+            "📩 Updated values: $currentGlucose mg/dL, $temperature°C, $humidity%");
+
+        notifyListeners(); // ✅ Ensure UI updates
       } catch (e) {
         print("⚠️ Error parsing Bluetooth data: $e");
       }
@@ -80,11 +85,13 @@ class GlucoseProvider with ChangeNotifier {
 
   /// **Update Data when Sensor Sends New Readings**
   void updateSensorData(Map<String, dynamic> newData) {
-    currentGlucose = newData['glucose_level'];
-    glucoseTime = newData['timestamp'];
-    temperature = newData['temperature'] ?? temperature;
-    humidity = newData['humidity'] ?? humidity;
-    notifyListeners();
+    currentGlucose =
+        (newData['glucose_level'] as num?)?.toInt() ?? currentGlucose;
+    glucoseTime = newData['timestamp'] ?? glucoseTime;
+    temperature = (newData['temperature'] as num?)?.toDouble() ?? temperature;
+    humidity = (newData['humidity'] as num?)?.toDouble() ?? humidity;
+
+    notifyListeners(); // ✅ Ensure UI refreshes
   }
 
   /// **Save Data to SQLite Backend**
