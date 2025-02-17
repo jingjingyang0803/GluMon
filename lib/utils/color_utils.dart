@@ -6,3 +6,5 @@ final Color primaryBlue = Color(0xFF3750B5); // Blue
 final Color primaryOrange = Color(0xFFEA7951); // Orange
 
 final Color primaryDarkBlue = Color(0xFF31507F); // Dark Blue
+
+final Color bgColor = Color(0xFFF1F1F5); // Light grey
