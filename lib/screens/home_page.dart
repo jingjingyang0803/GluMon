@@ -73,7 +73,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMainContent(GlucoseProvider glucoseProvider) {
-    print("🔄 Rebuilding UI with glucose: ${glucoseProvider.currentGlucose}");
+    print(
+        "🔄 Rebuilding UI with glucose: ${glucoseProvider.currentGlucose} ${glucoseProvider.temperature} ${glucoseProvider.humidity}");
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),

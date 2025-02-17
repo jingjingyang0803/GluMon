@@ -66,6 +66,8 @@ class GlucoseProvider with ChangeNotifier {
       try {
         Map<String, dynamic> jsonData = jsonDecode(data);
 
+        print("📩 Raw JSON Data Received: $jsonData");
+
         currentGlucose =
             (jsonData['glucose_level'] as num?)?.toInt() ?? currentGlucose;
         glucoseTime = jsonData['timestamp'] ?? "--";
@@ -74,9 +76,9 @@ class GlucoseProvider with ChangeNotifier {
         humidity = (jsonData['humidity'] as num?)?.toDouble() ?? humidity;
 
         print(
-            "📩 Updated values: $currentGlucose mg/dL, $temperature°C, $humidity%");
+            "🔄 Updated Values -> Glucose: $currentGlucose, Temp: $temperature, Humidity: $humidity");
 
-        notifyListeners(); // ✅ Ensure UI updates
+        notifyListeners();
       } catch (e) {
         print("⚠️ Error parsing Bluetooth data: $e");
       }
