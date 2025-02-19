@@ -77,6 +77,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
    - assets/images/profile.jpg
+   - assets/icons/home.png
+   - assets/icons/diagram.png
    - assets/glucose_model.tflite
 
   # An image asset can refer to one or more resolution-specific "variants", see
