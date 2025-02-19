@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../components/avg_glucose_card.dart';
 import '../components/current_glucose_card.dart';
-import '../components/glucose_meter_widget.dart';
 import '../components/humidity_temperature_card.dart';
 import '../components/info_card.dart';
 import '../components/sensor_status_card.dart';
@@ -83,7 +82,6 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20),
-          GlucoseMeterWidget(value: 156), // Example glucose percentage
           Text(
             'Last Measure',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
