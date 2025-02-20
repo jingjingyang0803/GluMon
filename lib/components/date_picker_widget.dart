@@ -63,53 +63,100 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 80,
+      height: 100, // Ensures enough space for the layout
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: _dates.length,
         itemBuilder: (context, index) {
           final date = _dates[index];
-
           final bool isSelected = _selectedDate.year == date.year &&
               _selectedDate.month == date.month &&
               _selectedDate.day == date.day;
 
           return GestureDetector(
             onTap: () => _onDateTap(date),
-            child: Container(
-              width: 60,
-              margin: EdgeInsets.symmetric(horizontal: 6),
+            child: SizedBox(
+              width: 56, // Ensures equal width for all dates
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    DateFormat('E').format(date)[0], // First letter of the day
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Nexa Text-Trial',
-                      fontWeight: FontWeight.w400,
-                      color: isSelected ? primaryBlue : primaryGrey,
+                  // **Weekday Letter (Always Visible)**
+                  Container(
+                    width: 22,
+                    height: 32,
+                    alignment: Alignment.center,
+                    decoration: ShapeDecoration(
+                      color: isSelected ? primaryOrange : Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    child: Text(
+                      DateFormat('E')
+                          .format(date)[0], // First letter of the day
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Nexa Text-Trial',
+                        fontWeight: FontWeight.w400,
+                        color: isSelected ? Colors.white : primaryGrey,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    DateFormat('dd').format(date),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Nexa Text-Trial',
-                      fontWeight: FontWeight.w400,
-                      color: isSelected ? primaryBlue : Colors.black,
-                    ),
-                  ),
-                  Text(
-                    DateFormat('MMM').format(date),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Nexa Text-Trial',
-                      fontWeight: FontWeight.w400,
-                      color: isSelected ? primaryBlue : primaryBlack,
-                    ),
+                  const SizedBox(height: 8),
+
+                  // **Date Display (Always Visible, Changes Style Based on `isSelected`)**
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      // **Blue Oval Glow (Only Visible When Selected)**
+                      Container(
+                        width: 30,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Color(0xFFDEECFE)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+
+                      // **White Floating Circle for Selected Date / Normal Date for Others**
+                      Positioned(
+                        top: isSelected
+                            ? 3
+                            : 0, // ✅ Move selected date down slightly for effect
+                        child: Container(
+                          width: 25,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected ? Colors.white : Colors.transparent,
+                            shape: BoxShape.circle,
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: Color(0x19000000),
+                                      blurRadius: 13,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            DateFormat('dd').format(date),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Nexa Text-Trial',
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? primaryBlack : Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
