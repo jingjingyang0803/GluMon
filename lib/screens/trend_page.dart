@@ -114,19 +114,53 @@ class _TrendPageState extends State<TrendPage> {
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                interval: 6, // Show hours at 6-hour intervals
+                                interval:
+                                    6, // Show at 6-hour intervals: 00:00, 06:00, 12:00, 18:00, 24:00
+                                reservedSize:
+                                    40, // Ensure enough space for text and circle
                                 getTitlesWidget: (value, meta) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 4.0),
-                                    child: Text(
-                                      "${value.toInt()}:00",
-                                      style: TextStyle(
-                                        color: primaryGrey,
-                                        fontSize: 13,
-                                        fontFamily: 'Nexa Text-Trial',
-                                        fontWeight: FontWeight.w400,
+                                  String text = "${value.toInt()}:00";
+                                  TextAlign align = TextAlign.center;
+                                  Color textColor = primaryGrey;
+
+                                  if (value == 0) {
+                                    text = "00:00";
+                                    align = TextAlign.left;
+                                  } else if (value == 24) {
+                                    text = "24:00";
+                                    align = TextAlign.right;
+                                  }
+
+                                  // Highlight current interval
+                                  bool isCurrentInterval =
+                                      (value.toInt() == currentHour);
+                                  if (isCurrentInterval) {
+                                    textColor = Colors.red;
+                                  }
+
+                                  return Column(
+                                    children: [
+                                      Text(
+                                        text,
+                                        textAlign: align,
+                                        style: TextStyle(
+                                          color: textColor,
+                                          fontSize: 13,
+                                          fontFamily: 'Nexa Text-Trial',
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
-                                    ),
+                                      if (isCurrentInterval) // Show the circle below the label
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          margin: EdgeInsets.only(top: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                    ],
                                   );
                                 },
                               ),

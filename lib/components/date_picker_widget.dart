@@ -3,7 +3,7 @@ import 'package:glu_mon/utils/color_utils.dart';
 import 'package:intl/intl.dart';
 
 class DatePickerWidget extends StatefulWidget {
-  final Function(DateTime) onDateSelected; // Callback function
+  final Function(DateTime) onDateSelected;
 
   const DatePickerWidget({super.key, required this.onDateSelected});
 
@@ -13,9 +13,8 @@ class DatePickerWidget extends StatefulWidget {
 
 class DatePickerWidgetState extends State<DatePickerWidget> {
   late ScrollController _scrollController;
-  DateTime _selectedDate = DateTime.now(); // ✅ Default to today
+  DateTime _selectedDate = DateTime.now();
 
-  // ✅ Generate dates: 30 days before today + today
   final List<DateTime> _dates = List.generate(
     31,
     (index) => DateTime.now().subtract(Duration(days: 30 - index)),
@@ -25,7 +24,6 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    // Move selected date to center after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToSelected();
     });
@@ -36,7 +34,7 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
       _selectedDate = date;
     });
     widget.onDateSelected(date);
-    _scrollToSelected(); // Scroll when a new date is selected
+    _scrollToSelected();
   }
 
   void _scrollToSelected() {
@@ -46,7 +44,7 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
         date.day == _selectedDate.day);
 
     if (selectedIndex != -1) {
-      double itemWidth = 60 + 12; // Width + margin (horizontal padding)
+      double itemWidth = 60 + 12;
       double screenWidth = MediaQuery.of(context).size.width;
       double targetScrollOffset =
           (selectedIndex * itemWidth) - (screenWidth / 2) + (itemWidth / 2);
@@ -73,7 +71,7 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
         itemBuilder: (context, index) {
           final date = _dates[index];
 
-          final isSelected = _selectedDate.year == date.year &&
+          final bool isSelected = _selectedDate.year == date.year &&
               _selectedDate.month == date.month &&
               _selectedDate.day == date.day;
 
@@ -82,38 +80,35 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
             child: Container(
               width: 60,
               margin: EdgeInsets.symmetric(horizontal: 6),
-              decoration: BoxDecoration(
-                color: isSelected ? primaryBlue : Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border:
-                    Border.all(color: isSelected ? primaryBlue : Colors.grey),
-              ),
-              padding: EdgeInsets.all(8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    DateFormat('E').format(date)[0], // M, T, W ...
+                    DateFormat('E').format(date)[0], // First letter of the day
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : primaryGrey,
+                      fontSize: 13,
+                      fontFamily: 'Nexa Text-Trial',
+                      fontWeight: FontWeight.w400,
+                      color: isSelected ? primaryBlue : primaryGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    DateFormat('dd').format(date),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: 'Nexa Text-Trial',
+                      fontWeight: FontWeight.w400,
+                      color: isSelected ? primaryBlue : Colors.black,
                     ),
                   ),
                   Text(
-                    DateFormat('dd').format(date), // 01, 02...
+                    DateFormat('MMM').format(date),
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  Text(
-                    DateFormat('MMM').format(date), // Jan, Feb...
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 13,
+                      fontFamily: 'Nexa Text-Trial',
+                      fontWeight: FontWeight.w400,
+                      color: isSelected ? primaryBlue : primaryBlack,
                     ),
                   ),
                 ],
