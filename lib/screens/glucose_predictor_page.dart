@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:glu_mon/utils/color_utils.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
+
+import '../components/circular_gauge_widget.dart';
 
 class GlucosePredictorPage extends StatefulWidget {
   const GlucosePredictorPage({super.key});
@@ -204,12 +207,14 @@ class GlucosePredictorPageState extends State<GlucosePredictorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(title: Text("Glucose Predictor")),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            CircularGaugeWidget(value: 160),
             Text("Predict Blood Glucose Level",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
