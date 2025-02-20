@@ -15,10 +15,9 @@ class TrendPage extends StatefulWidget {
 
 class _TrendPageState extends State<TrendPage> {
   final DatabaseService _databaseService = DatabaseService();
-
   List<Map<String, dynamic>> glucoseData = [];
   bool isLoading = true;
-  DateTime selectedDate = DateTime.now(); // Default to today
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -26,15 +25,12 @@ class _TrendPageState extends State<TrendPage> {
     _fetchDailyData(selectedDate);
   }
 
-  /// **Fetch daily glucose data from SQLite**
   Future<void> _fetchDailyData(DateTime date) async {
     setState(() => isLoading = true);
-
     try {
       String dateString = "${date.year}-${date.month}-${date.day}";
       List<Map<String, dynamic>> data =
           await _databaseService.getGlucoseTrendData(dateString);
-
       setState(() {
         glucoseData = data;
         isLoading = false;
@@ -49,6 +45,9 @@ class _TrendPageState extends State<TrendPage> {
   Widget build(BuildContext context) {
     double minY = 0;
     double maxY = 200;
+    DateTime now = DateTime.now();
+    double currentHour =
+        now.hour.toDouble() + now.minute / 60.0; // Convert to double
 
     var minEntry = glucoseData.isNotEmpty
         ? glucoseData.reduce((a, b) => a['value'] < b['value'] ? a : b)
@@ -56,6 +55,21 @@ class _TrendPageState extends State<TrendPage> {
     var maxEntry = glucoseData.isNotEmpty
         ? glucoseData.reduce((a, b) => a['value'] > b['value'] ? a : b)
         : null;
+
+    List<FlSpot> pastSpots = [];
+    List<FlSpot> futureSpots = [];
+
+    for (var entry in glucoseData) {
+      double hour = double.parse(entry['time'].split(':')[0]) +
+          double.parse(entry['time'].split(':')[1]) / 60.0;
+      double value = (entry['value'] as num).toDouble();
+
+      if (hour <= currentHour) {
+        pastSpots.add(FlSpot(hour, value));
+      } else {
+        futureSpots.add(FlSpot(hour, value));
+      }
+    }
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -79,8 +93,6 @@ class _TrendPageState extends State<TrendPage> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Show Loading Indicator if Data is Still Loading
               if (isLoading)
                 const Center(child: CircularProgressIndicator())
               else if (glucoseData.isEmpty)
@@ -91,30 +103,31 @@ class _TrendPageState extends State<TrendPage> {
                   children: [
                     const SizedBox(height: 16),
                     SizedBox(
-                      height:
-                          300, // ✅ Set a fixed height instead of using Expanded
+                      height: 300,
                       child: LineChart(
                         LineChartData(
+                          minX: 0,
+                          maxX: 24,
                           minY: minY,
                           maxY: maxY,
                           titlesData: FlTitlesData(
                             bottomTitles: AxisTitles(
                               sideTitles: SideTitles(
                                 showTitles: true,
-                                interval: 1,
+                                interval: 6, // Show hours at 6-hour intervals
                                 getTitlesWidget: (value, meta) {
-                                  int index = value.toInt();
-                                  if (index >= 0 &&
-                                      index < glucoseData.length) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 4.0),
-                                      child: Text(
-                                        glucoseData[index]['time'],
-                                        style: const TextStyle(fontSize: 12),
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      "${value.toInt()}:00",
+                                      style: TextStyle(
+                                        color: primaryGrey,
+                                        fontSize: 13,
+                                        fontFamily: 'Nexa Text-Trial',
+                                        fontWeight: FontWeight.w400,
                                       ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
+                                    ),
+                                  );
                                 },
                               ),
                             ),
@@ -128,18 +141,25 @@ class _TrendPageState extends State<TrendPage> {
                           borderData: FlBorderData(show: false),
                           gridData:
                               FlGridData(show: false, drawVerticalLine: false),
-
                           lineBarsData: [
+                            // **Past Data (Darker Line)**
                             LineChartBarData(
-                              spots: glucoseData.asMap().entries.map((e) {
-                                return FlSpot(e.key.toDouble(),
-                                    (e.value['value'] as num).toDouble());
-                              }).toList(),
+                              spots: pastSpots,
                               isCurved: true,
-                              barWidth: 2, // Make the line thinner
+                              barWidth: 3,
                               isStrokeCapRound: true,
-                              dotData: FlDotData(
-                                  show: false), // This removes the dots
+                              dotData: FlDotData(show: false),
+                              color: Colors
+                                  .transparent, // Make the line transparent
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFF018767), // Start color
+                                  Color(0xFF02C697), // End color
+                                ],
+                                begin: Alignment.topLeft, // Gradient from top
+                                end:
+                                    Alignment.bottomRight, // Gradient to bottom
+                              ),
                               belowBarData: BarAreaData(
                                 show: true,
                                 gradient: LinearGradient(
@@ -154,20 +174,33 @@ class _TrendPageState extends State<TrendPage> {
                                   end: Alignment.bottomCenter,
                                 ),
                               ),
-                              color: Colors
-                                  .transparent, // Make the line transparent
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF018767), // Start color
-                                  Color(0xFF02C697), // End color
-                                ],
-                                begin: Alignment.topLeft, // Gradient from top
-                                end:
-                                    Alignment.bottomRight, // Gradient to bottom
+                            ),
+
+                            // **Future Data (Lighter Line)**
+                            LineChartBarData(
+                              spots: futureSpots,
+                              isCurved: true,
+                              barWidth: 2,
+                              isStrokeCapRound: true,
+                              dotData: FlDotData(show: false),
+                              color:
+                                  const Color(0xFFCCCCCC), // Light gray color
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFFD1E4FE).withValues(
+                                        alpha:
+                                            0.42), // Start color (light blue)
+                                    Color(
+                                        0xFFFCFDFF), // End color (light white)
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
                               ),
                             ),
                           ],
-
                           // Update touchData to the correct property
                           lineTouchData: LineTouchData(
                             handleBuiltInTouches:

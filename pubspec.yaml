@@ -97,7 +97,7 @@ flutter:
       fonts:
         - asset: assets/fonts/Nexa-Trial-Regular.ttf
         - asset: assets/fonts/Nexa-Trial-Heavy.ttf
-    - family: NexaText-Trial
+    - family: Nexa Text-Trial
       fonts:
         - asset: assets/fonts/NexaText-Trial-Regular.ttf
 
