@@ -133,7 +133,8 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
                           decoration: BoxDecoration(
                             color:
                                 isSelected ? Colors.white : Colors.transparent,
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(
+                                16), // ✅ Oval shape instead of a perfect circle
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
