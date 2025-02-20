@@ -129,7 +129,6 @@ class _TrendPageState extends State<TrendPage> {
                           gridData:
                               FlGridData(show: false, drawVerticalLine: false),
 
-                          /// Line Chart for Glucose Data with Gradient Line
                           lineBarsData: [
                             LineChartBarData(
                               spots: glucoseData.asMap().entries.map((e) {
@@ -137,7 +136,7 @@ class _TrendPageState extends State<TrendPage> {
                                     (e.value['value'] as num).toDouble());
                               }).toList(),
                               isCurved: true,
-                              barWidth: 3,
+                              barWidth: 2, // Make the line thinner
                               isStrokeCapRound: true,
                               dotData: FlDotData(
                                   show: false), // This removes the dots
@@ -145,8 +144,9 @@ class _TrendPageState extends State<TrendPage> {
                                 show: true,
                                 gradient: LinearGradient(
                                   colors: [
-                                    Color(
-                                        0xFFD1E4FE), // Start color (light blue)
+                                    Color(0xFFD1E4FE).withValues(
+                                        alpha:
+                                            0.42), // Start color (light blue)
                                     Color(
                                         0xFFFCFDFF), // End color (light white)
                                   ],
@@ -167,6 +167,39 @@ class _TrendPageState extends State<TrendPage> {
                               ),
                             ),
                           ],
+
+                          // Update touchData to the correct property
+                          lineTouchData: LineTouchData(
+                            handleBuiltInTouches:
+                                true, // Enable built-in touch interactions
+                            touchTooltipData: LineTouchTooltipData(
+                              getTooltipColor: (LineBarSpot touchedSpot) =>
+                                  Colors.transparent, // Background color
+                              tooltipPadding: EdgeInsets.all(
+                                  8), // Padding inside the tooltip
+                              tooltipMargin: 8, // Margin around the tooltip
+                              maxContentWidth: 150, // Max width for the tooltip
+                              tooltipRoundedRadius:
+                                  4, // Rounded corners for the tooltip
+                              getTooltipItems:
+                                  (List<LineBarSpot> touchedSpots) {
+                                return touchedSpots
+                                    .map((LineBarSpot touchedSpot) {
+                                  final textStyle = TextStyle(
+                                    color: primaryBlack,
+                                    fontFamily: 'Nexa-Trial',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  );
+                                  return LineTooltipItem(
+                                    touchedSpot.y
+                                        .toString(), // The value you want to show in the tooltip
+                                    textStyle,
+                                  );
+                                }).toList();
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -95,8 +95,11 @@ flutter:
           weight: 100
     - family: Nexa-Trial
       fonts:
+        - asset: assets/fonts/Nexa-Trial-Regular.ttf
+        - asset: assets/fonts/Nexa-Trial-Heavy.ttf
+    - family: NexaText-Trial
+      fonts:
         - asset: assets/fonts/NexaText-Trial-Regular.ttf
-
 
 flutter_icons:
   android: true
