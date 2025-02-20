@@ -48,9 +48,10 @@ class CircularGaugeWidget extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xB283B5FB),
-                  blurRadius: 40,
-                  offset: Offset(10, 15),
+                  color: Color(0xB283B5FB), // Light blue tint
+                  blurRadius: 120, // Increase blur for a softer spread
+                  offset: Offset(20, 30), // Position it slightly below-right
+                  spreadRadius: 10, // Expand the blur effect
                 ),
               ],
             ),
@@ -142,7 +143,7 @@ class CircularArcPainter extends CustomPainter {
 
     final center = Offset(size.width / 2, size.height / 2);
     final radius =
-        size.width / 2 - 10; // ✅ Ensures arc is right next to the white circle
+        size.width / 2 + 5; // ✅ Ensures arc is right next to the white circle
 
     double startAngle = -pi; // ✅ Starts at the left (0 mg/dL)
     double sweepAngle = -2 * pi * progress; // ✅ Accurate arc length
@@ -166,24 +167,22 @@ Widget _buildBlurCircle(Offset position) {
       height: 40,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
+        color: Colors.white.withOpacity(0.2), // Soft glow effect
         boxShadow: [
           BoxShadow(
-            color: Color(0x8001C596), // ✅ Soft green blur effect
-            blurRadius: 15,
-            spreadRadius: 5,
+            color: Color(0xFF01C596).withOpacity(0.5), // Green glow
+            blurRadius: 30, // Soft and diffused glow
+            spreadRadius: 10, // Expand outward
           ),
         ],
-        border: Border.all(color: Color(0xFFE2EEFF), width: 2),
-        color: Colors.white, // ✅ Small inner white circle
       ),
       child: Center(
         child: Container(
-          width: 15,
-          height: 15,
+          width: 18,
+          height: 18,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(color: Color(0xFFE2EEFF)),
+            color: Colors.white, // Solid white inner circle
           ),
         ),
       ),
