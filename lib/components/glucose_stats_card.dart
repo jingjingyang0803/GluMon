@@ -21,8 +21,8 @@ class GlucoseStatsCard extends StatelessWidget {
         color: primaryGreen,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12), // Top-left corner
-            topRight: Radius.circular(12), // Top-right corner
+            topLeft: Radius.circular(11), // Top-left corner
+            topRight: Radius.circular(11), // Top-right corner
           ),
         ),
       ),
@@ -55,33 +55,45 @@ class ValueCard extends StatelessWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment
+              .end, // Align the children to the bottom of the row
           children: [
+            // Value text
             Text(
               value,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 30.37,
+                fontSize: 30,
+                fontFamily: 'Nexa-Trial',
                 fontWeight: FontWeight.w700,
               ),
             ),
-            Text(
-              ' mg/dL', // You can adjust the unit as needed
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 13.02,
-                fontWeight: FontWeight.w400,
+            // Unit text, smaller and aligned at the bottom
+            Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 4), // Adjust the spacing to match the baseline
+              child: Text(
+                ' mg/dL',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 11,
+                  fontFamily: 'Nexa-Trial',
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
         ),
+        SizedBox(height: 10),
         Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white.withOpacity(0.7),
-            fontSize: 13.02,
+            fontSize: 13,
+            fontFamily: 'Nexa-Trial',
             fontWeight: FontWeight.w700,
           ),
         ),
