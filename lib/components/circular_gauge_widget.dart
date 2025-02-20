@@ -11,6 +11,10 @@ class CircularGaugeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double progress = (value / maxValue).clamp(0.0, 1.0); // Normalize progress
+    // **Determine Arc Endpoint**
+    double angle = -pi + (-2 * pi * progress);
+    double endX = 150 + 90 * cos(angle); // ✅ Adjust based on canvas size
+    double endY = 150 + 90 * sin(angle);
 
     return SizedBox(
       width: 300,
@@ -82,6 +86,9 @@ class CircularGaugeWidget extends StatelessWidget {
             painter: CircularArcPainter(progress),
           ),
 
+          // **Blurred Indicator at Arc Endpoint**
+          _buildBlurCircle(Offset(endX, endY)),
+
           // **Grey Numerical Labels at Key Positions**
           _buildLabel("0", Alignment.centerLeft), // 0 at the left
           _buildLabel("${(maxValue * 0.25).toInt()}",
@@ -147,4 +154,39 @@ class CircularArcPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
+}
+
+// **Helper Function to Add a Blurred Circular Effect at the End of the Arc**
+Widget _buildBlurCircle(Offset position) {
+  return Positioned(
+    left: position.dx - 20, // ✅ Adjust alignment to center the blur
+    top: position.dy - 20,
+    child: Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x8001C596), // ✅ Soft green blur effect
+            blurRadius: 15,
+            spreadRadius: 5,
+          ),
+        ],
+        border: Border.all(color: Color(0xFFE2EEFF), width: 2),
+        color: Colors.white, // ✅ Small inner white circle
+      ),
+      child: Center(
+        child: Container(
+          width: 15,
+          height: 15,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: Color(0xFFE2EEFF)),
+          ),
+        ),
+      ),
+    ),
+  );
 }
