@@ -93,11 +93,11 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    DateFormat('EEE').format(date), // Mon, Tue...
+                    DateFormat('E').format(date)[0], // M, T, W ...
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? Colors.white : Colors.black,
+                      color: isSelected ? Colors.white : primaryGrey,
                     ),
                   ),
                   Text(

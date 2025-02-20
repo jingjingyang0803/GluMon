@@ -4,7 +4,7 @@ import 'package:glu_mon/services/database_service.dart';
 import 'package:glu_mon/utils/color_utils.dart';
 
 import '../components/date_picker_widget.dart';
-import '../components/glucose_card.dart';
+import '../components/glucose_stats_card.dart';
 
 class TrendPage extends StatefulWidget {
   const TrendPage({super.key});
@@ -66,7 +66,7 @@ class _TrendPageState extends State<TrendPage> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -88,23 +88,6 @@ class _TrendPageState extends State<TrendPage> {
               else
                 Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        GlucoseCard(
-                          label: 'Highest Glucose',
-                          value: maxEntry?['value'].toString() ?? "--",
-                          time: maxEntry?['time'] ?? "--",
-                          color: Colors.red,
-                        ),
-                        GlucoseCard(
-                          label: 'Lowest Glucose',
-                          value: minEntry?['value'].toString() ?? "--",
-                          time: minEntry?['time'] ?? "--",
-                          color: Colors.blue,
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 16),
                     SizedBox(
                       height:
@@ -188,6 +171,11 @@ class _TrendPageState extends State<TrendPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    GlucoseStatsCard(
+                      averageValue: '10',
+                      minValue: maxEntry?['value'].toString() ?? "--",
+                      maxValue: minEntry?['value'].toString() ?? "--",
+                    ),
                   ],
                 ),
             ],
