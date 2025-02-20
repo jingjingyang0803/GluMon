@@ -13,12 +13,12 @@ class CircularGaugeWidget extends StatelessWidget {
     double progress = (value / maxValue).clamp(0.0, 1.0); // Normalize progress
     // **Determine Arc Endpoint**
     double angle = -pi + (-2 * pi * progress);
-    double endX = 150 + 90 * cos(angle); // ✅ Adjust based on canvas size
-    double endY = 150 + 90 * sin(angle);
+    double endX = 180 + 90 * cos(angle); // ✅ Adjust based on canvas size
+    double endY = 250 + 90 * sin(angle);
 
     return SizedBox(
-      width: 300,
-      height: 300,
+      width: 500,
+      height: 500,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -90,33 +90,29 @@ class CircularGaugeWidget extends StatelessWidget {
           // **Blurred Indicator at Arc Endpoint**
           _buildBlurCircle(Offset(endX, endY)),
 
-          // **Grey Numerical Labels at Key Positions**
-          _buildLabel("0", Alignment.centerLeft), // 0 at the left
-          _buildLabel("${(maxValue * 0.25).toInt()}",
-              Alignment.bottomCenter), // 1/4 at bottom
-          _buildLabel("${(maxValue * 0.5).toInt()}",
-              Alignment.centerRight), // 1/2 at right
-          _buildLabel("${(maxValue * 0.75).toInt()}",
-              Alignment.topCenter), // 3/4 at top
+          // **Grey Numerical Labels at Key Positions (Moved Outside the Blur)**
+          _buildLabel("0", 20, 250), // Left (further left)
+          _buildLabel("100", 165, 390), // Bottom (further down)
+          _buildLabel("200", 330, 250), // Right (further right)
+          _buildLabel("300", 165, 85), // Top (further up)
         ],
       ),
     );
   }
 
   // **Helper Function to Create Grey Labels at Key Positions**
-  Widget _buildLabel(String text, Alignment alignment) {
-    return Align(
-      alignment: alignment,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0), // Adjust spacing
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Color(0xFFB4B4B4),
-            fontSize: 14,
-            fontFamily: 'Nexa-Trial',
-            fontWeight: FontWeight.w400,
-          ),
+// **Updated Label Function to Place Outside the Blur**
+  Widget _buildLabel(String text, double dx, double dy) {
+    return Positioned(
+      left: dx, // Adjust X position
+      top: dy, // Adjust Y position
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Color(0xFFB4B4B4),
+          fontSize: 14,
+          fontFamily: 'Nexa-Trial',
+          fontWeight: FontWeight.w400,
         ),
       ),
     );
@@ -138,7 +134,7 @@ class CircularArcPainter extends CustomPainter {
           center: Offset(size.width / 2, size.height / 2),
           radius: size.width / 2))
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 12 // ✅ Adjust thickness for smooth curve
+      ..strokeWidth = 20 // ✅ Adjust thickness for smooth curve
       ..strokeCap = StrokeCap.round;
 
     final center = Offset(size.width / 2, size.height / 2);
@@ -178,8 +174,8 @@ Widget _buildBlurCircle(Offset position) {
       ),
       child: Center(
         child: Container(
-          width: 18,
-          height: 18,
+          width: 20,
+          height: 20,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.white, // Solid white inner circle
