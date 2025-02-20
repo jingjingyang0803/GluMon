@@ -71,16 +71,38 @@ class ValueCard extends StatelessWidget {
             ),
             // Unit text, smaller and aligned at the bottom
             Padding(
-              padding: const EdgeInsets.only(
-                  bottom: 4), // Adjust the spacing to match the baseline
-              child: Text(
-                ' mg/dL',
+              padding: const EdgeInsets.only(bottom: 4), // Adjust spacing
+              child: RichText(
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontFamily: 'Nexa-Trial',
-                  fontWeight: FontWeight.w700,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: ' mg', // Normal text
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontFamily: 'Nexa-Trial',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: '/', // ✅ Different font for `/`
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'dL', // Normal text continues
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontFamily: 'Nexa-Trial',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
