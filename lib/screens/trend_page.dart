@@ -4,6 +4,7 @@ import 'package:glu_mon/services/database_service.dart';
 
 import '../components/date_picker_widget.dart';
 import '../components/glucose_stats_card.dart';
+import '../components/health_category_row.dart';
 import '../utils/color_utils.dart';
 
 class TrendPage extends StatefulWidget {
@@ -86,6 +87,8 @@ class _TrendPageState extends State<TrendPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              HealthCategoryRow(),
+              const SizedBox(height: 8),
               DatePickerWidget(
                 onDateSelected: (date) {
                   setState(() => selectedDate = date);
