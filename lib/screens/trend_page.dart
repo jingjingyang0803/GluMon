@@ -1,10 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:glu_mon/services/database_service.dart';
-import 'package:glu_mon/utils/color_utils.dart';
 
 import '../components/date_picker_widget.dart';
 import '../components/glucose_stats_card.dart';
+import '../utils/color_utils.dart';
 
 class TrendPage extends StatefulWidget {
   const TrendPage({super.key});
@@ -58,14 +58,15 @@ class _TrendPageState extends State<TrendPage> {
         : null;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: const Text(''),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Padding(
+      body: Container(
+        color: bgColor,
         padding: const EdgeInsets.all(0),
         child: SingleChildScrollView(
           child: Column(
@@ -118,9 +119,7 @@ class _TrendPageState extends State<TrendPage> {
                               ),
                             ),
                             leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                  showTitles: true, reservedSize: 40),
-                            ),
+                                sideTitles: SideTitles(showTitles: false)),
                             topTitles: AxisTitles(
                                 sideTitles: SideTitles(showTitles: false)),
                             rightTitles: AxisTitles(
@@ -130,29 +129,7 @@ class _TrendPageState extends State<TrendPage> {
                           gridData:
                               FlGridData(show: false, drawVerticalLine: false),
 
-                          /// **Colored Background for Normal/High/Low Ranges**
-                          rangeAnnotations: RangeAnnotations(
-                            horizontalRangeAnnotations: [
-                              HorizontalRangeAnnotation(
-                                  y1: minY,
-                                  y2: 70,
-                                  color: Colors.red.withAlpha(80)),
-                              HorizontalRangeAnnotation(
-                                  y1: 70,
-                                  y2: 140,
-                                  color: Colors.green.withAlpha(80)),
-                              HorizontalRangeAnnotation(
-                                  y1: 140,
-                                  y2: 180,
-                                  color: Colors.orange.withAlpha(80)),
-                              HorizontalRangeAnnotation(
-                                  y1: 180,
-                                  y2: maxY,
-                                  color: Colors.red.withAlpha(80)),
-                            ],
-                          ),
-
-                          /// **Line Chart for Glucose Data**
+                          /// Line Chart for Glucose Data with Gradient Line
                           lineBarsData: [
                             LineChartBarData(
                               spots: glucoseData.asMap().entries.map((e) {
@@ -162,9 +139,32 @@ class _TrendPageState extends State<TrendPage> {
                               isCurved: true,
                               barWidth: 3,
                               isStrokeCapRound: true,
-                              dotData: FlDotData(show: true),
-                              belowBarData: BarAreaData(show: false),
-                              color: primaryBlue,
+                              dotData: FlDotData(
+                                  show: false), // This removes the dots
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(
+                                        0xFFD1E4FE), // Start color (light blue)
+                                    Color(
+                                        0xFFFCFDFF), // End color (light white)
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                              color: Colors
+                                  .transparent, // Make the line transparent
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFF018767), // Start color
+                                  Color(0xFF02C697), // End color
+                                ],
+                                begin: Alignment.topLeft, // Gradient from top
+                                end:
+                                    Alignment.bottomRight, // Gradient to bottom
+                              ),
                             ),
                           ],
                         ),
