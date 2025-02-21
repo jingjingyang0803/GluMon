@@ -18,19 +18,21 @@ class CircularGaugeWidget extends StatelessWidget {
     double angle = startAngle + sweepAngle; // ✅ Correct endpoint angle
 
     // ✅ Define component radii
-    double canvasSize = 500; // Define the canvas size explicitly
-    double centerX = canvasSize / 2;
-    double centerY = canvasSize / 2;
+    double canvasSize = 350; // Define the canvas size explicitly
 
     double whiteCircleRadius = 100; // Center white circle
     double blueBlurRadius = 140; // Outer blue glow
-    double greenArcRadius = 90; // Green progress arc
     double strokeWidth = 20; // ✅ Stroke width for arc
-    double endpointRadius = greenArcRadius - strokeWidth / 2;
+    double greenArcRadius =
+        whiteCircleRadius - strokeWidth / 2; // Green progress arc
+    double endpointRadius = greenArcRadius;
+
+    double labelRadius =
+        (canvasSize / 2) - (whiteCircleRadius / 2); // Adjust for positioning
 
     return SizedBox(
-      width: 500,
-      height: 500,
+      width: canvasSize,
+      height: canvasSize,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -42,7 +44,8 @@ class CircularGaugeWidget extends StatelessWidget {
 
           // **Green arc progress indicator (Counterclockwise)**
           CustomPaint(
-            size: Size(240, 240), // Keep it inside the white circle
+            size:
+                Size(canvasSize, canvasSize), // Keep it inside the white circle
             painter: CircularArcPainter(progress, greenArcRadius, strokeWidth),
           ),
 
@@ -52,11 +55,10 @@ class CircularGaugeWidget extends StatelessWidget {
           // **Text display for glucose level**
           _buildText(value),
 
-          // **Numerical labels at key positions**
-          _buildLabel("0", -190, 0),
-          _buildLabel("100", 0, 140),
-          _buildLabel("200", 140, 0),
-          _buildLabel("300", 0, -140),
+          _buildLabel("0", -labelRadius - 10, 0),
+          _buildLabel("100", 0, labelRadius + 10),
+          _buildLabel("200", labelRadius + 20, 0),
+          _buildLabel("300", 0, -labelRadius - 10),
         ],
       ),
     );
@@ -155,31 +157,58 @@ class CircularGaugeWidget extends StatelessWidget {
     double dx = endpointRadius * cos(angle);
     double dy = endpointRadius * sin(angle);
 
+    // **Sizes**
+    double outerGlowSize = 45; // Outer glow container size
+    double innerCircleSize = 20; // Inner white circle size
+    double glowBlur = 30; // The blur radius of the glow effect
+
+    // **Offset correction using half of the outer glow size**
+    double correction = outerGlowSize / 2;
+
+    print('endpointRadius: $endpointRadius');
+    print('dx: $dx, dy: $dy');
+    print('Actual Position: (${centerX + dx}, ${centerY + dy})');
+    print('Correction applied: $correction');
+
     return Positioned(
-      left: centerX + dx - 20, // Offset based on actual element size
-      top: centerY + dy - 20,
+      left: centerX + dx - correction,
+      top: centerY + dy - correction,
       child: Container(
-        width: 40,
-        height: 40,
+        width: outerGlowSize,
+        height: outerGlowSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               color: Color(0xFFDEECFE).withOpacity(0.8),
-              blurRadius: 30,
+              blurRadius: glowBlur,
               spreadRadius: 8,
             ),
           ],
         ),
-        child: Center(
-          child: Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // **Outer glow effect (larger)**
+            Container(
+              width: outerGlowSize - 5,
+              height: outerGlowSize - 5,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.2),
+                border: Border.all(width: 1.5, color: Color(0xFFE2EEFF)),
+              ),
             ),
-          ),
+            // **Inner endpoint circle (smaller)**
+            Container(
+              width: innerCircleSize,
+              height: innerCircleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -198,6 +227,7 @@ class CircularArcPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     double centerX = size.width / 2;
     double centerY = size.height / 2;
+    print('size: $size, centerX: $centerX');
 
     final Paint progressPaint = Paint()
       ..shader = LinearGradient(
