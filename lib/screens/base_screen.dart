@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:glu_mon/screens/bluetooth_page.dart';
-import 'package:glu_mon/screens/glucose_predictor_page.dart';
-import 'package:glu_mon/screens/settings_page.dart';
 import 'package:glu_mon/screens/trend_page.dart';
 
 import '../components/bottom_nav_bar.dart';
@@ -15,15 +13,13 @@ class BaseScreen extends StatefulWidget {
 }
 
 class BaseScreenState extends State<BaseScreen> {
-  final int _selectedIndex = 2; // Default page index (HomeScreen)
+  final int _selectedIndex = 0; // Default page index (HomeScreen)
 
   // List of pages for navigation
   final List<Widget> _pages = [
     HomePage(),
-    GlucosePredictorPage(),
     BluetoothPage(),
     TrendPage(),
-    SettingsPage(),
   ];
 
   @override
