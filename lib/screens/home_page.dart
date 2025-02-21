@@ -39,7 +39,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final glucoseProvider = Provider.of<GlucoseProvider>(context);
 

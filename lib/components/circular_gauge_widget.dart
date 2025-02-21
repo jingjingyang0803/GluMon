@@ -3,14 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class CircularGaugeWidget extends StatelessWidget {
-  final double value; // Glucose level in mg/dL
+  final String value; // Glucose level in mg/dL
   final double maxValue = 400; // ✅ Fixed max glucose level
 
   const CircularGaugeWidget({super.key, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    double progress = (value / maxValue).clamp(0.0, 1.0); // Normalize progress
+    double progress =
+        (double.tryParse(value) ?? 0.0 / maxValue).clamp(0.0, 1.0);
 
     // ✅ Start at 9 o’clock and move counterclockwise
     double startAngle = -pi;
@@ -18,7 +19,7 @@ class CircularGaugeWidget extends StatelessWidget {
     double angle = startAngle + sweepAngle; // ✅ Correct endpoint angle
 
     // ✅ Define component radii
-    double canvasSize = 350; // Define the canvas size explicitly
+    double canvasSize = 330; // Define the canvas size explicitly
 
     double whiteCircleRadius = 100; // Center white circle
     double blueBlurRadius = 140; // Outer blue glow
@@ -37,7 +38,8 @@ class CircularGaugeWidget extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           // **Blue background glow**
-          _buildBlurCircle(blueBlurRadius, Color(0xFFD6E6FD).withOpacity(0.8)),
+          _buildBlurCircle(
+              blueBlurRadius, Color(0xFFD6E6FD).withValues(alpha: 0.8)),
 
           // **White center circle**
           _buildCenterCircle(canvasSize, whiteCircleRadius),
@@ -53,12 +55,12 @@ class CircularGaugeWidget extends StatelessWidget {
           _buildEndpointGlow(canvasSize, endpointRadius, angle),
 
           // **Text display for glucose level**
-          _buildText(value),
+          _buildText(value.toString()),
 
-          _buildLabel("0", -labelRadius - 10, 0),
-          _buildLabel("100", 0, labelRadius + 10),
-          _buildLabel("200", labelRadius + 20, 0),
-          _buildLabel("300", 0, -labelRadius - 10),
+          _buildLabel("0", -labelRadius - 30, 0),
+          _buildLabel("100", 0, labelRadius + 30),
+          _buildLabel("200", labelRadius + 40, 0),
+          _buildLabel("300", 0, -labelRadius - 30),
         ],
       ),
     );
@@ -107,12 +109,12 @@ class CircularGaugeWidget extends StatelessWidget {
   }
 
   // **Text display for glucose level**
-  Widget _buildText(double value) {
+  Widget _buildText(String value) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          value.toInt().toString(),
+          value,
           style: TextStyle(
             color: Color(0xFF272727),
             fontSize: 56,
@@ -180,7 +182,7 @@ class CircularGaugeWidget extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Color(0xFFDEECFE).withOpacity(0.8),
+              color: Color(0xFFDEECFE).withValues(alpha: 0.8),
               blurRadius: glowBlur,
               spreadRadius: 8,
             ),
@@ -195,7 +197,7 @@ class CircularGaugeWidget extends StatelessWidget {
               height: outerGlowSize - 5,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 border: Border.all(width: 1.5, color: Color(0xFFE2EEFF)),
               ),
             ),

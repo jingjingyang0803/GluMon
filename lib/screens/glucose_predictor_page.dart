@@ -215,7 +215,7 @@ class GlucosePredictorPageState extends State<GlucosePredictorPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularGaugeWidget(value: 250),
+            CircularGaugeWidget(value: '250'),
             Text(
               false ? "Measuring..." : "Device Not Connected",
               style: TextStyle(
