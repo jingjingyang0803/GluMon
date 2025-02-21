@@ -4,6 +4,7 @@ import 'package:glu_mon/services/database_service.dart';
 
 import '../components/date_picker_widget.dart';
 import '../components/glucose_stats_card.dart';
+import '../components/glucose_trend_svg_widget.dart';
 import '../components/health_category_row.dart';
 import '../utils/color_utils.dart';
 
@@ -94,6 +95,39 @@ class _TrendPageState extends State<TrendPage> {
                   setState(() => selectedDate = date);
                   _fetchDailyData(date);
                 },
+              ),
+              GlucoseTrendSvgWidget(
+                glucoseData: [
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 0, 0),
+                    "value": 100
+                  }, // Midnight
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 4, 0),
+                    "value": 140
+                  }, // 4 AM
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 8, 0),
+                    "value": 120
+                  }, // 8 AM
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 12, 0),
+                    "value": 160
+                  }, // Noon
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 16, 0),
+                    "value": 130
+                  }, // 4 PM
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 20, 0),
+                    "value": 150
+                  }, // 8 PM
+                  {
+                    "timestamp": DateTime(2024, 2, 21, 23, 59),
+                    "value": 110
+                  } // 11:59 PM
+                ],
+                maxX: 24, // Daily glucose trend
               ),
               const SizedBox(height: 16),
               if (isLoading)
