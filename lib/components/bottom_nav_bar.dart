@@ -78,6 +78,7 @@ class BottomNavBarState extends State<BottomNavBar> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: bgColor,
+        elevation: 0, // Removes top border shadow
         items: [
           BottomNavigationBarItem(
             icon: _buildSvgIcon(
@@ -105,42 +106,6 @@ class BottomNavBarState extends State<BottomNavBar> {
       ),
     );
   }
-}
-
-Widget _buildSvgButton(bool isActive) {
-  String svgButton = '''
-  <svg width="60" height="60" viewBox="0 0 144 144" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Outer Glow when Active -->
-    ${isActive ? '''
-    <filter id="blurEffect">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
-    </filter>
-    ''' : ''}
-
-    <!-- Background Circle -->
-    <circle cx="72" cy="72" r="55" fill="${isActive ? "#018767" : "#12B78F"}" 
-      ${isActive ? 'filter="url(#blurEffect)"' : ''} />
-
-    <!-- Inner Shape -->
-    <path d="M72 40 L92 72 L72 104 L52 72 Z" fill="white"/>
-    
-    <!-- Upper Gradient -->
-    <circle cx="72" cy="55" r="25" fill="url(#grad1)" />
-    
-    <defs>
-      <linearGradient id="grad1" x1="72" y1="30" x2="72" y2="80" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#17d0a3"/>
-        <stop offset="1" stop-color="white"/>
-      </linearGradient>
-    </defs>
-  </svg>
-  ''';
-
-  return SvgPicture.string(
-    svgButton,
-    width: 60,
-    height: 60,
-  );
 }
 
 extension ColorExtension on Color {
