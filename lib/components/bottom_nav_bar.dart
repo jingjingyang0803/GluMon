@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:glu_mon/screens/bluetooth_page.dart';
 
-import '../screens/home_page.dart';
+import '../screens/measure_page.dart';
 import '../screens/trend_page.dart';
 import '../utils/color_utils.dart';
 import 'custom_nav_button.dart';
@@ -22,7 +22,7 @@ class BottomNavBarState extends State<BottomNavBar> {
 
   // List of pages for navigation
   final List<Widget> _pages = [
-    HomePage(),
+    MeasurePage(),
     BluetoothPage(),
     TrendPage(),
   ];
