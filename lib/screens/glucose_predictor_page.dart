@@ -214,7 +214,7 @@ class GlucosePredictorPageState extends State<GlucosePredictorPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularGaugeWidget(value: 260),
+            CircularGaugeWidget(value: 100),
             Text("Predict Blood Glucose Level",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
