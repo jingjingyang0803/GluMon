@@ -14,3 +14,5 @@ final Color bgColor = Color(0xFFFCFDFF);
 final Color primaryGreen = Color(0xFF018767); // Green
 
 final Color lightGreen = Color(0xFF3EBB9D); // light green
+
+final Color lightBlue = Color(0x802272F7); // light green

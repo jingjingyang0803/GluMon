@@ -3,6 +3,7 @@ import 'package:glu_mon/utils/color_utils.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
 import '../components/circular_gauge_widget.dart';
+import '../components/glucose_wave_widget.dart';
 
 class GlucosePredictorPage extends StatefulWidget {
   const GlucosePredictorPage({super.key});
@@ -215,6 +216,17 @@ class GlucosePredictorPageState extends State<GlucosePredictorPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularGaugeWidget(value: 250),
+            Text(
+              false ? "Measuring..." : "Device Not Connected",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: false ? lightBlue : Color(0xFFFA7E70),
+              ),
+            ),
+            GlucoseWaveWidget(
+              isConnected: false,
+            ),
             Text("Predict Blood Glucose Level",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
