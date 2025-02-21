@@ -17,8 +17,8 @@ class BottomNavBar extends StatefulWidget {
 class BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
 
-  final Color activeColor = Color(0xFF018767); // 绿色
-  final Color inactiveColor = Colors.grey;
+  final Color activeColor = primaryGreen;
+  final Color inactiveColor = primaryGrey;
 
   // List of pages for navigation
   final List<Widget> _pages = [
