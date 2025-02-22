@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
 import '../components/circular_gauge_widget.dart';
+import '../components/custom_app_bar.dart';
 import '../components/glucose_wave_widget.dart';
 import '../components/info_card.dart';
 import '../providers/glucose_provider.dart';
@@ -48,6 +49,13 @@ class MeasurePageState extends State<MeasurePage> {
 
     return Scaffold(
       backgroundColor: bgColor,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(90), // Adjust height
+        child: SafeArea(
+          bottom: false, // Avoid adding extra space at the bottom
+          child: CustomAppBar(),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
