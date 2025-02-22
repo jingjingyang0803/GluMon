@@ -74,14 +74,18 @@ class GlucoseSettingsPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // 🔹 Settings List (Non-Interactive)
-            Expanded(
+            SizedBox(
+              height: screenHeight * 0.65, // ✅ Adjust height dynamically
               child: Padding(
                 padding: EdgeInsets.only(
                     top: screenHeight * 0.01), // Dynamic padding
                 child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14), // ✅ Adds space inside container
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(35),
                     boxShadow: [
                       BoxShadow(
                         color: primaryGrey.withOpacity(0.2),
@@ -94,30 +98,31 @@ class GlucoseSettingsPage extends StatelessWidget {
                     children: [
                       SettingsMenuItem(
                         icon: Icons.timeline,
-                        text: "Glucose Unit: mg/dL",
+                        text: "Glucose Unit",
+                        iconBackgroundColor: lightGreen,
+                        iconColor: primaryGreen,
+                        trailingTextBuilder: () => "mg/dL", // pass text
+                      ),
+                      Divider(thickness: 1, color: bgColor),
+                      SettingsMenuItem(
+                        icon: Icons.notifications_active_outlined,
+                        text: "Glucose Alerts",
                         iconBackgroundColor: lightGreen,
                         iconColor: primaryGreen,
                       ),
                       Divider(thickness: 1, color: bgColor),
                       SettingsMenuItem(
-                        icon: Icons.notifications_active_outlined,
-                        text: "Glucose Alerts: Enabled",
-                        iconBackgroundColor: lightBlue,
-                        iconColor: primaryBlue,
-                      ),
-                      Divider(thickness: 1, color: bgColor),
-                      SettingsMenuItem(
                         icon: Icons.analytics_outlined,
-                        text: "Trend Analysis: Active",
-                        iconBackgroundColor: primaryDarkBlue,
-                        iconColor: primaryBlue,
+                        text: "Trend Analysis",
+                        iconBackgroundColor: lightGreen,
+                        iconColor: primaryGreen,
                       ),
                       Divider(thickness: 1, color: bgColor),
                       SettingsMenuItem(
                         icon: Icons.file_download_outlined,
-                        text: "Export Glucose Data",
-                        iconBackgroundColor: primaryOrange,
-                        iconColor: Colors.white,
+                        text: "Export Data",
+                        iconBackgroundColor: lightGreen,
+                        iconColor: primaryGreen,
                       ),
                       Divider(thickness: 1, color: bgColor),
                       SettingsMenuItem(
@@ -162,7 +167,8 @@ class SettingsMenuItem extends StatelessWidget {
   final Color iconBackgroundColor;
   final Color iconColor;
   final VoidCallback? onTap;
-  final String Function()? trailingTextBuilder; // Callback for dynamic text
+  final String Function()? trailingTextBuilder;
+  final IconData? trailingIcon; // Optional trailing icon
 
   const SettingsMenuItem({
     super.key,
@@ -172,11 +178,11 @@ class SettingsMenuItem extends StatelessWidget {
     required this.iconColor,
     this.onTap,
     this.trailingTextBuilder,
+    this.trailingIcon,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Get screen size for dynamic adjustment
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -184,51 +190,71 @@ class SettingsMenuItem extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(
-            vertical: screenHeight * 0.0075), // Dynamic vertical padding
+            vertical: screenHeight * 0.0025), // Vertical spacing
         child: Container(
           padding: EdgeInsets.symmetric(
-              vertical: screenHeight * 0.008), // Dynamic vertical padding
+              vertical: screenHeight * 0.015, horizontal: 16), // Inner padding
           decoration: BoxDecoration(
-            color: Colors.white, // White background for cards
-            borderRadius: BorderRadius.circular(
-                screenWidth * 0.03), // Dynamic rounded corners
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade200, // Light shadow
-                blurRadius: 6, // Soften edges
-                offset: Offset(0, 4), // Vertical shadow
+            color: Colors.white, // Background color
+            borderRadius:
+                BorderRadius.circular(screenWidth * 0.25), // Rounded corners
+            border: Border.all(
+              color: lightGreen.withOpacity(0.3), // ✅ Light blurred border
+              width: 2, // ✅ Thin border
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // ✅ Icon + Text
+              Row(
+                children: [
+                  Container(
+                    height: screenWidth * 0.12,
+                    width: screenWidth * 0.12,
+                    decoration: BoxDecoration(
+                      color: iconBackgroundColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: iconColor,
+                      size: screenWidth * 0.06,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+
+              // ✅ Trailing Text / Icon
+              Row(
+                children: [
+                  if (trailingTextBuilder != null)
+                    Text(
+                      trailingTextBuilder!(),
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.04,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  if (trailingIcon != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      trailingIcon,
+                      color: Colors.grey.shade600,
+                      size: screenWidth * 0.05,
+                    ),
+                  ],
+                ],
               ),
             ],
-          ),
-          child: ListTile(
-            leading: Container(
-              height: screenWidth * 0.12, // Dynamic icon size
-              width: screenWidth * 0.12, // Dynamic icon size
-              decoration: BoxDecoration(
-                color: iconBackgroundColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon,
-                  color: iconColor,
-                  size: screenWidth * 0.06), // Dynamic icon size
-            ),
-            title: Text(
-              text,
-              style: TextStyle(
-                fontSize: screenWidth * 0.045, // Dynamic font size for text
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            trailing: trailingTextBuilder != null
-                ? Text(
-                    trailingTextBuilder!(),
-                    style: TextStyle(
-                      fontSize: screenWidth *
-                          0.04, // Dynamic font size for trailing text
-                      color: Colors.grey.shade600,
-                    ),
-                  )
-                : null,
           ),
         ),
       ),
