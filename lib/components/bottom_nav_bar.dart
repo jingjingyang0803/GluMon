@@ -33,44 +33,6 @@ class BottomNavBarState extends State<BottomNavBar> {
     });
   }
 
-  /// Returns different SVG icons based on the type parameter
-  Widget _buildSvgIcon(String type, Color color) {
-    String svgIcon;
-
-    if (type == "home") {
-      svgIcon = '''
-        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 10L12 3L21 10V20H14V14H10V20H3V10Z" 
-            stroke="${color.toHex()}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      ''';
-    } else if (type == "stats") {
-      svgIcon = '''
-        <svg width="38" height="38" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10.3477 19.0896H7.32422V11.5373H10.3466V19.0908L10.3477 19.0896ZM16.3912 19.0896H13.3689V3.98145H16.3912V19.0896ZM22.4335 19.0896H19.4124V8.51377H22.4335V19.0896Z" fill="${color.toHex()}"/>
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M25.4558 24.7974H4.3042V22.4473H25.4558V24.7974Z" fill="${color.toHex()}"/>
-        </svg>
-      ''';
-    } else if (type == "profile") {
-      svgIcon = '''
-      <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="8" r="4" stroke="${color.toHex()}" stroke-width="2"/>
-        <path d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20" stroke="${color.toHex()}" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    ''';
-    } else {
-      // Default to a placeholder SVG if type is not recognized
-      svgIcon = '''
-        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="10" stroke="${color.toHex()}" stroke-width="2"/>
-          <text x="50%" y="50%" text-anchor="middle" fill="${color.toHex()}" font-size="4" dy=".3em">?</text>
-        </svg>
-      ''';
-    }
-
-    return SvgPicture.string(svgIcon, width: 38, height: 38);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,8 +43,13 @@ class BottomNavBarState extends State<BottomNavBar> {
         elevation: 0, // Removes top border shadow
         items: [
           BottomNavigationBarItem(
-            icon: _buildSvgIcon(
-                'home', _selectedIndex == 0 ? activeColor : inactiveColor),
+            icon: SvgPicture.asset(
+              'assets/icons/home-1-svgrepo-com.svg',
+              width: 35,
+              height: 35,
+              colorFilter: const ColorFilter.mode(
+                  Colors.black, BlendMode.srcIn), // Adjust color dynamically
+            ),
             label: '',
           ),
           BottomNavigationBarItem(
@@ -92,8 +59,13 @@ class BottomNavBarState extends State<BottomNavBar> {
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: _buildSvgIcon(
-                'stats', _selectedIndex == 2 ? activeColor : inactiveColor),
+            icon: SvgPicture.asset(
+              'assets/icons/diagram-up-svgrepo-com.svg',
+              width: 35,
+              height: 35,
+              colorFilter: const ColorFilter.mode(
+                  Colors.black, BlendMode.srcIn), // Adjust color dynamically
+            ),
             label: '',
           ),
         ],
@@ -105,11 +77,5 @@ class BottomNavBarState extends State<BottomNavBar> {
         onTap: _onItemTapped, // Handles navigation
       ),
     );
-  }
-}
-
-extension ColorExtension on Color {
-  String toHex() {
-    return '#${value.toRadixString(16).padLeft(8, '0').substring(2, 8).toUpperCase()}';
   }
 }
