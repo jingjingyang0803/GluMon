@@ -47,8 +47,11 @@ class BottomNavBarState extends State<BottomNavBar> {
               'assets/icons/home-1-svgrepo-com.svg',
               width: 35,
               height: 35,
-              colorFilter: const ColorFilter.mode(
-                  Colors.black, BlendMode.srcIn), // Adjust color dynamically
+              colorFilter: ColorFilter.mode(
+                  _selectedIndex == 0
+                      ? primaryGreen
+                      : Colors.black, // Change color dynamically
+                  BlendMode.srcIn), // Adjust color dynamically
             ),
             label: '',
           ),
@@ -63,8 +66,11 @@ class BottomNavBarState extends State<BottomNavBar> {
               'assets/icons/diagram-up-svgrepo-com.svg',
               width: 35,
               height: 35,
-              colorFilter: const ColorFilter.mode(
-                  Colors.black, BlendMode.srcIn), // Adjust color dynamically
+              colorFilter: ColorFilter.mode(
+                  _selectedIndex == 2
+                      ? primaryGreen
+                      : Colors.black, // Change color dynamically
+                  BlendMode.srcIn), // Adjust color dynamically
             ),
             label: '',
           ),
