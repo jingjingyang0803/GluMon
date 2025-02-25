@@ -65,7 +65,7 @@ class ValueCard extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
-                fontFamily: 'Nexa-Trial',
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -81,7 +81,7 @@ class ValueCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 11,
-                        fontFamily: 'Nexa-Trial',
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -98,7 +98,7 @@ class ValueCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 11,
-                        fontFamily: 'Nexa-Trial',
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -115,7 +115,7 @@ class ValueCard extends StatelessWidget {
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.7),
             fontSize: 13,
-            fontFamily: 'Nexa-Trial',
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w700,
           ),
         ),

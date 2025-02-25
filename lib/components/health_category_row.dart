@@ -36,7 +36,7 @@ class _HealthCategoryRowState extends State<HealthCategoryRow> {
               style: TextStyle(
                 color: Color(0xFF272727),
                 fontSize: 16,
-                fontFamily: 'Nexa Text-Trial',
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -67,7 +67,7 @@ class _HealthCategoryRowState extends State<HealthCategoryRow> {
             style: TextStyle(
               color: isSelected ? primaryBlack : primaryGrey,
               fontSize: 17,
-              fontFamily: 'Nexa-Trial',
+              fontFamily: 'Poppins',
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -93,7 +93,7 @@ class _HealthCategoryRowState extends State<HealthCategoryRow> {
         text: text,
         style: TextStyle(
           fontSize: 17,
-          fontFamily: 'Nexa-Trial',
+          fontFamily: 'Poppins',
           fontWeight: FontWeight.w400,
         ),
       ),

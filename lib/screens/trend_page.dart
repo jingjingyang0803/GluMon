@@ -183,7 +183,7 @@ class _TrendPageState extends State<TrendPage> {
                                         style: TextStyle(
                                           color: textColor,
                                           fontSize: 13,
-                                          fontFamily: 'Nexa Text-Trial',
+                                          fontFamily: 'Poppins',
                                           fontWeight: FontWeight.w400,
                                         ),
                                       ),
@@ -291,7 +291,7 @@ class _TrendPageState extends State<TrendPage> {
                                     .map((LineBarSpot touchedSpot) {
                                   final textStyle = TextStyle(
                                     color: primaryBlack,
-                                    fontFamily: 'Nexa-Trial',
+                                    fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   );

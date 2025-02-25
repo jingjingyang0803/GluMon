@@ -98,7 +98,7 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
-                        fontFamily: 'Nexa Text-Trial',
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
                         color: isSelected ? Colors.white : primaryGrey,
                       ),
@@ -150,7 +150,7 @@ class DatePickerWidgetState extends State<DatePickerWidget> {
                             DateFormat('dd').format(date),
                             style: TextStyle(
                               fontSize: 14,
-                              fontFamily: 'Nexa Text-Trial',
+                              fontFamily: 'Poppins',
                               fontWeight: FontWeight.w500,
                               color: isSelected ? primaryBlack : Colors.black,
                             ),

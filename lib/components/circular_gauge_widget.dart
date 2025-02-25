@@ -118,7 +118,7 @@ class CircularGaugeWidget extends StatelessWidget {
           style: TextStyle(
             color: Color(0xFF272727),
             fontSize: 56,
-            fontFamily: 'Nexa-Trial',
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -127,7 +127,7 @@ class CircularGaugeWidget extends StatelessWidget {
           style: TextStyle(
             color: Color(0xFFB4B4B4),
             fontSize: 13,
-            fontFamily: 'Nexa-Trial',
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
           ),
         ),

@@ -91,13 +91,6 @@ flutter:
           weight: 700
         - asset: assets/fonts/Poppins-Thin.ttf
           weight: 100
-    - family: Nexa-Trial
-      fonts:
-        - asset: assets/fonts/Nexa-Trial-Regular.ttf
-        - asset: assets/fonts/Nexa-Trial-Heavy.ttf
-    - family: Nexa Text-Trial
-      fonts:
-        - asset: assets/fonts/NexaText-Trial-Regular.ttf
 
 flutter_icons:
   android: true
