@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CustomNavButton extends StatelessWidget {
   final bool isActive;
@@ -65,11 +66,14 @@ class CustomNavButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Center(
-              child: Icon(
-                Icons.add, // ✅ Replace with other icons if needed
-                color: Colors.white,
-                size: 32,
+            child: Center(
+              child: SvgPicture.asset(
+                'assets/icons/bluetooth-wave-svgrepo-com.svg',
+                width: 32,
+                height: 32,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white, BlendMode.srcIn, // Adjust color dynamically
+                ),
               ),
             ),
           ),

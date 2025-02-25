@@ -56,31 +56,34 @@ class MeasurePageState extends State<MeasurePage> {
           child: CustomAppBar(),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularGaugeWidget(
-                value: glucoseProvider.currentGlucose?.toString() ?? "--"),
-            SizedBox(height: 10),
-            Text(
-              glucoseProvider.isConnected
-                  ? "Measuring..."
-                  : "Device Not Connected",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color:
-                    glucoseProvider.isConnected ? lightBlue : Color(0xFFFA7E70),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularGaugeWidget(
+                  value: glucoseProvider.currentGlucose?.toString() ?? "--"),
+              SizedBox(height: 10),
+              Text(
+                glucoseProvider.isConnected
+                    ? "Measuring..."
+                    : "Device Not Connected",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: glucoseProvider.isConnected
+                      ? lightBlue
+                      : Color(0xFFFA7E70),
+                ),
               ),
-            ),
-            GlucoseWaveWidget(
-              isConnected: glucoseProvider.isConnected,
-            ),
-            SizedBox(height: 10),
-            InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
-          ],
+              GlucoseWaveWidget(
+                isConnected: glucoseProvider.isConnected,
+              ),
+              SizedBox(height: 10),
+              InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
+            ],
+          ),
         ),
       ),
     );

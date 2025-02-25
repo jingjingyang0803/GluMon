@@ -14,39 +14,45 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         .format(DateTime.now()); // Formats as "Fri 23, February"
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 36, // Adjust spacing
+        bottom: 10,
+      ),
       color: bgColor, // Background color
-      child: AppBar(
-        backgroundColor: bgColor, // Background color
-        elevation: 0, // No shadow
-        toolbarHeight: 130, // Adjust height for balance
-        leading: SizedBox(
-          width: 85, // Increased size
-          height: 85,
-          child: CircleAvatar(
-            radius: 50, // Bigger profile picture
-            backgroundImage: AssetImage('assets/images/profile.jpg'),
-          ),
-        ),
-
-        title: Text(
-          todayDate, // Uses real date dynamically
-          style: TextStyle(
-            fontSize: 22, // Increased font size
-            fontWeight: FontWeight.bold,
-            color: Colors.black87, // Dark gray text
-          ),
-        ),
-
-        centerTitle: true,
-        actions: [
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Evenly space items
+        children: [
+          /// **Profile Icon (Now centered properly)**
           Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 8.0, bottom: 8.0),
+            padding: const EdgeInsets.only(left: 16.0), // Adjust left spacing
+            child: CircleAvatar(
+              radius: 35, // Bigger profile picture
+              backgroundImage: AssetImage('assets/images/profile.jpg'),
+            ),
+          ),
+
+          /// **Date (Centered)**
+          Expanded(
+            child: Center(
+              child: Text(
+                todayDate,
+                style: TextStyle(
+                  fontSize: 20, // Increased font size
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87, // Dark gray text
+                ),
+              ),
+            ),
+          ),
+
+          /// **Settings Icon (Aligned properly)**
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0), // Adjust right spacing
             child: IconButton(
               icon: SvgPicture.asset(
                 'assets/icons/widget-svgrepo-com.svg',
-                width: 45, // Increased size
-                height: 45,
+                width: 35, // Increased size
+                height: 35,
                 colorFilter: const ColorFilter.mode(
                     Colors.black, BlendMode.srcIn), // Adjust color dynamically
               ),
@@ -65,5 +71,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(90); // Adjusted height
+  Size get preferredSize => Size.fromHeight(110); // Adjusted height
 }
