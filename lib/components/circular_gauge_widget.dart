@@ -19,7 +19,7 @@ class CircularGaugeWidget extends StatelessWidget {
     double angle = startAngle + sweepAngle; // ✅ Correct endpoint angle
 
     // ✅ Define component radii
-    double canvasSize = 330; // Define the canvas size explicitly
+    double canvasSize = 300; // Define the canvas size explicitly
 
     double whiteCircleRadius = 100; // Center white circle
     double blueBlurRadius = 140; // Outer blue glow
@@ -57,10 +57,10 @@ class CircularGaugeWidget extends StatelessWidget {
           // **Text display for glucose level**
           _buildText(value.toString()),
 
-          _buildLabel("0", -labelRadius - 30, 0),
-          _buildLabel("100", 0, labelRadius + 30),
-          _buildLabel("200", labelRadius + 40, 0),
-          _buildLabel("300", 0, -labelRadius - 30),
+          _buildLabel("0", -labelRadius - 60, 0),
+          _buildLabel("100", 0, labelRadius + 60),
+          _buildLabel("200", labelRadius + 70, 0),
+          _buildLabel("300", 0, -labelRadius - 60),
         ],
       ),
     );
