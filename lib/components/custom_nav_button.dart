@@ -35,8 +35,8 @@ class CustomNavButton extends StatelessWidget {
 
           // ✅ Thinner White Ring
           Container(
-            width: 80, // Reduced size for thinner ring
-            height: 80,
+            width: 70, // Reduced size for thinner ring
+            height: 70,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white, // White border effect
