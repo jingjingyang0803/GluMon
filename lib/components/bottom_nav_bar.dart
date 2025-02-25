@@ -50,7 +50,7 @@ class BottomNavBarState extends State<BottomNavBar> {
               colorFilter: ColorFilter.mode(
                   _selectedIndex == 0
                       ? primaryGreen
-                      : Colors.black, // Change color dynamically
+                      : primaryGrey, // Change color dynamically
                   BlendMode.srcIn), // Adjust color dynamically
             ),
             label: '',
@@ -69,7 +69,7 @@ class BottomNavBarState extends State<BottomNavBar> {
               colorFilter: ColorFilter.mode(
                   _selectedIndex == 2
                       ? primaryGreen
-                      : Colors.black, // Change color dynamically
+                      : primaryGrey, // Change color dynamically
                   BlendMode.srcIn), // Adjust color dynamically
             ),
             label: '',
