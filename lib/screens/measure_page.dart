@@ -57,43 +57,45 @@ class MeasurePageState extends State<MeasurePage> {
           child: CustomAppBar(),
         ),
       ),
-      body: Padding(
-        // ✅ Apply padding to the entire body
-        padding: const EdgeInsets.symmetric(
-            horizontal: 34.0), // More spacing from left & right
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment:
-                CrossAxisAlignment.center, // ✅ Ensure center alignment
-            children: [
-              CircularGaugeWidget(
-                value: glucoseProvider.isConnected
-                    ? glucoseProvider.currentGlucose?.toString() ?? "--"
-                    : "--",
-              ),
-              SizedBox(height: 10),
-              Text(
-                glucoseProvider.isConnected
-                    ? "Measuring..."
-                    : "Device Not Connected",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: glucoseProvider.isConnected
-                      ? lightBlue
-                      : Color(0xFFFA7E70),
+      body: SingleChildScrollView(
+        child: Align(
+          alignment: Alignment.center, // ✅ Ensures everything stays centered
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85, // ✅ Set max width
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // ✅ Ensure center alignment
+              children: [
+                if (glucoseProvider.isConnected)
+                  InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0)
+                else
+                  SizedBox(height: 30),
+                SizedBox(height: 10),
+                CircularGaugeWidget(
+                  value: glucoseProvider.isConnected
+                      ? glucoseProvider.currentGlucose?.toString() ?? "--"
+                      : "--",
                 ),
-              ),
-              SizedBox(height: 10),
-              GlucoseWaveWidget(
-                isConnected: glucoseProvider.isConnected,
-              ),
-              SizedBox(height: 10),
-              if (glucoseProvider.isConnected)
-                InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
-              InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
-            ],
+                SizedBox(height: 20),
+                Text(
+                  glucoseProvider.isConnected
+                      ? "Measuring..."
+                      : "Device Not Connected",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: glucoseProvider.isConnected
+                        ? lightBlue
+                        : Color(0xFFFA7E70),
+                  ),
+                ),
+                SizedBox(height: 10),
+                GlucoseWaveWidget(
+                  isConnected: glucoseProvider.isConnected,
+                ),
+              ],
+            ),
           ),
         ),
       ),
