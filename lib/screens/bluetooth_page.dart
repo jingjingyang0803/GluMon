@@ -37,59 +37,61 @@ class BluetoothPageState extends State<BluetoothPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text('',
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: primaryDarkBlue)),
+        title: Text(
+          '',
+          style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              color: primaryDarkBlue),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: primaryDarkBlue),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Use Expanded to prevent overflow
-            Expanded(
-              child: ListView(
-                children: [
-                  CustomButton(
-                    text: "Refresh bluetooth list",
-                    onPressed: _bluetoothService.scanDevices,
-                    backgroundColor: primaryGreen,
-                    textColor: Colors.white,
-                  ),
+        child: StreamBuilder<bool>(
+          stream: _bluetoothService.connectionStatusStream,
+          builder: (context, snapshot) {
+            bool isConnected = snapshot.data ?? false;
 
-                  // StreamBuilder<List<bt_serial.BluetoothDevice>>(
-                  //   stream: _bluetoothService.classicDevicesStream,
-                  //   builder: (context, snapshot) {
-                  //     return _buildDeviceCard(
-                  //         "Classic Bluetooth (SPP) Devices",
-                  //         snapshot.data ?? [],
-                  //         _bluetoothService.connectToClassicDevice);
-                  //   },
-                  // ),
-                  const SizedBox(height: 20),
+            return Column(
+              children: [
+                // ✅ Always Show Refresh Button
+                CustomButton(
+                  text: "Refresh bluetooth list",
+                  onPressed: _bluetoothService.scanDevices,
+                  backgroundColor: primaryGreen,
+                  textColor: Colors.white,
+                ),
+                const SizedBox(height: 20),
+
+                // ✅ Show List of Devices Only When Disconnected
+                if (!(isConnected ??
+                    false)) // Ensure null safety and default to false
                   StreamBuilder<List<bt_ble.ScanResult>>(
                     stream: _bluetoothService.bleDevicesStream,
                     builder: (context, snapshot) {
                       return _buildDeviceCard(
-                          "",
-                          snapshot.data?.map((r) => r.device).toList() ?? [],
-                          _bluetoothService.connectToBleDevice);
+                        "",
+                        snapshot.data?.map((r) => r.device).toList() ?? [],
+                        _bluetoothService.connectToBleDevice,
+                      );
                     },
                   ),
-                  const SizedBox(height: 10),
-                  _buildConnectionStatusCard(),
-                ],
-              ),
-            ),
-          ],
+
+                const SizedBox(height: 10),
+
+                // ✅ Show Connection Status Only When Connected
+                if (isConnected) _buildConnectionStatusCard(),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -245,11 +247,11 @@ class BluetoothPageState extends State<BluetoothPage> {
                 const SizedBox(height: 20),
 
                 if (isConnected)
-                  ElevatedButton(
+                  CustomButton(
                     onPressed: _bluetoothService.disconnect,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent),
-                    child: const Text("Disconnect"),
+                    text: 'Disconnect',
+                    textColor: Colors.white,
+                    backgroundColor: primaryOrange,
                   ),
               ],
             ),
