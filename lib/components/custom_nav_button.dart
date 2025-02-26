@@ -11,74 +11,63 @@ class CustomNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // ✅ Outer Glow Effect
-          Container(
-            width: 100, // Larger for glow
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.4), // Glow color
-                        blurRadius: 40,
-                        spreadRadius: 10,
-                      ),
-                    ]
-                  : [],
-            ),
-          ),
-
-          // ✅ Thinner White Ring
-          Container(
-            width: 70, // Reduced size for thinner ring
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white, // White border effect
-            ),
-          ),
-
-          // ✅ Inner Green Circle with Gradient
-          Container(
-            width: 60, // Slightly smaller than white ring
-            height: 60,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF17D0A3),
-                  Color(0xFF018767)
-                ], // Green Gradient
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 5,
-                  spreadRadius: 2,
-                  offset: const Offset(2, 2),
-                ),
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // ✅ 3rd Layer: Outer Blue Glow with Clean Boundary
+        Container(
+          width: 90, // Ensure it's larger than the white ring
+          height: 90,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                Color(0xFFD0E7FF), // Light blue (glow source)
+                Color(0xFFB0D0FF), // Slightly darker blue towards the edges
               ],
+              stops: [0.3, 1.0], // Glow intensity shift
+              center: Alignment(-0.5, -0.5), // Move glow towards top-left
+              focal: Alignment(
+                  -0.7, -0.7), // Make the glow stronger towards top-left
+              radius: 0.8, // Controls how far the glow spreads
             ),
-            child: Center(
-              child: SvgPicture.asset(
-                'assets/icons/bluetooth-wave-svgrepo-com.svg',
-                width: 32,
-                height: 32,
-                colorFilter: const ColorFilter.mode(
-                  Colors.white, BlendMode.srcIn, // Adjust color dynamically
-                ),
+          ),
+        ),
+
+        // ✅ 2nd Layer: White Ring (Middle Border)
+        Container(
+          width: 70, // Slightly bigger than green button
+          height: 70,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white, // White ring
+          ),
+        ),
+
+        // ✅ 1st Layer: Inner Green Circle (Core Button)
+        Container(
+          width: 50, // Smaller than white ring
+          height: 50,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [Color(0xFF17D0A3), Color(0xFF018767)], // Green Gradient
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Center(
+            child: SvgPicture.asset(
+              'assets/icons/bluetooth-wave-svgrepo-com.svg',
+              width: 32,
+              height: 32,
+              colorFilter: const ColorFilter.mode(
+                Colors.white, BlendMode.srcIn, // Adjust icon color
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

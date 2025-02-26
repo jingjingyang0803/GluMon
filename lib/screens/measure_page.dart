@@ -44,26 +44,34 @@ class MeasurePageState extends State<MeasurePage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final glucoseProvider = Provider.of<GlucoseProvider>(context);
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(90), // Adjust height
+        preferredSize: Size.fromHeight(90),
         child: SafeArea(
-          bottom: false, // Avoid adding extra space at the bottom
+          bottom: false,
           child: CustomAppBar(),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
+      body: Padding(
+        // ✅ Apply padding to the entire body
+        padding: const EdgeInsets.symmetric(
+            horizontal: 34.0), // More spacing from left & right
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // ✅ Ensure center alignment
             children: [
               CircularGaugeWidget(
-                  value: glucoseProvider.currentGlucose?.toString() ?? "--"),
+                value: glucoseProvider.isConnected
+                    ? glucoseProvider.currentGlucose?.toString() ?? "--"
+                    : "--",
+              ),
               SizedBox(height: 10),
               Text(
                 glucoseProvider.isConnected
@@ -77,11 +85,13 @@ class MeasurePageState extends State<MeasurePage> {
                       : Color(0xFFFA7E70),
                 ),
               ),
+              SizedBox(height: 10),
               GlucoseWaveWidget(
                 isConnected: glucoseProvider.isConnected,
               ),
               SizedBox(height: 10),
-              InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
+              if (glucoseProvider.isConnected)
+                InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
             ],
           ),
         ),
