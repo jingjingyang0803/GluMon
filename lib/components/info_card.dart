@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/color_utils.dart';
+
 class InfoCard extends StatelessWidget {
   final int glucoseValue; // Only pass the glucose value
 
@@ -7,65 +9,91 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color bgColor;
-    IconData icon;
-    String topMessage;
+    Color indicatorColor;
+    String level;
     String range;
-    String lowerMessage;
+    String message;
 
     // Assign values based on glucose level
     if (glucoseValue < 70) {
-      bgColor = Colors.redAccent;
-      icon = Icons.sentiment_dissatisfied;
-      topMessage = "Low Glucose";
+      indicatorColor = Colors.redAccent;
+      level = "Low";
       range = "< 70 mg/dL";
-      lowerMessage = "Eat something sweet!";
+      message = "Eat something sweet!";
     } else if (glucoseValue <= 140) {
-      bgColor = Colors.green;
-      icon = Icons.sentiment_satisfied;
-      topMessage = "Normal Range";
+      indicatorColor = Colors.green;
+      level = "Normal";
       range = "70 - 140 mg/dL";
-      lowerMessage = "Good job! Keep maintaining this level.";
+      message = "Good job! Keep maintaining this level.";
     } else if (glucoseValue <= 180) {
-      bgColor = Colors.orangeAccent;
-      icon = Icons.sentiment_neutral;
-      topMessage = "Slightly High";
+      indicatorColor = Colors.orangeAccent;
+      level = "Slightly High";
       range = "140 - 180 mg/dL";
-      lowerMessage = "Your glucose is rising. Stay cautious.";
+      message = "Your glucose is rising. Stay cautious.";
     } else {
-      bgColor = Colors.red;
-      icon = Icons.sentiment_very_dissatisfied;
-      topMessage = "Very High";
+      indicatorColor = Colors.red;
+      level = "Very High";
       range = "> 180 mg/dL";
-      lowerMessage = "Warning! Take action!";
+      message = "Warning! Take action!";
     }
 
     return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, color: Colors.white, size: 30),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "$topMessage ($range)",
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+          // ✅ Row with Indicator, Level, and Range
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center, // Center everything
+            children: [
+              // ✅ Level Text (e.g., "Normal", "High")
+              Text(
+                level,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w700,
+                  color: primaryBlack,
                 ),
-                SizedBox(height: 4),
-                Text(
-                  lowerMessage,
-                  style: TextStyle(color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+
+              // ✅ Colored Circle Indicator
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: indicatorColor,
+                  shape: BoxShape.circle,
                 ),
-              ],
+              ),
+
+              const SizedBox(width: 8),
+              // ✅ Range Text (e.g., "70 - 140 mg/dL")
+              Text(
+                range,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                  color: primaryBlack,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // ✅ Centered Grey Message
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF9D9B9B),
             ),
           ),
         ],

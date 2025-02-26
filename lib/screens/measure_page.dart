@@ -92,6 +92,7 @@ class MeasurePageState extends State<MeasurePage> {
               SizedBox(height: 10),
               if (glucoseProvider.isConnected)
                 InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
+              InfoCard(glucoseValue: glucoseProvider.currentGlucose ?? 0),
             ],
           ),
         ),

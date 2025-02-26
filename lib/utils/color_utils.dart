@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final Color primaryBlack = Color(0xFF272727); // Orange
+final Color primaryBlack = Color(0xFF272727); // Black
 
 final Color primaryBlue = Color(0xFF3750B5); // Blue
 final Color primaryOrange = Color(0xFFF86B5B); // Orange
