@@ -60,26 +60,28 @@ class BluetoothPageState extends State<BluetoothPage> {
           builder: (context, snapshot) {
             bool isConnected = snapshot.data ?? false;
 
-            return Column(
-              children: [
-                // ✅ Always Show Refresh Button
-                SizedBox(
-                  width: 140, // ✅ Set desired width
-                  child: CustomButton(
-                    text: "Refresh",
-                    onPressed: _bluetoothService.scanDevices,
-                    backgroundColor: primaryGreen,
-                    textColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 8), // ✅ Smaller padding
+            // ✅ Return a widget based on connection status
+            if (isConnected) {
+              return _buildConnectionStatusCard(); // ✅ Show Connection Status when connected
+            } else {
+              return Column(
+                children: [
+                  // ✅ Always Show Refresh Button
+                  SizedBox(
+                    width: 140, // ✅ Set desired width
+                    child: CustomButton(
+                      text: "Refresh",
+                      onPressed: _bluetoothService.scanDevices,
+                      backgroundColor: primaryGreen,
+                      textColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8), // ✅ Smaller padding
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // ✅ Show List of Devices Only When Disconnected
-                if (!(isConnected ??
-                    false)) // Ensure null safety and default to false
+                  // ✅ Show List of Devices Only When Disconnected
                   StreamBuilder<List<bt_ble.ScanResult>>(
                     stream: _bluetoothService.bleDevicesStream,
                     builder: (context, snapshot) {
@@ -91,12 +93,10 @@ class BluetoothPageState extends State<BluetoothPage> {
                     },
                   ),
 
-                const SizedBox(height: 10),
-
-                // ✅ Show Connection Status Only When Connected
-                if (isConnected) _buildConnectionStatusCard(),
-              ],
-            );
+                  const SizedBox(height: 10),
+                ],
+              );
+            }
           },
         ),
       ),
@@ -184,6 +184,12 @@ class BluetoothPageState extends State<BluetoothPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                Text(
+                  "Connected Device",
+                  style: GoogleFonts.poppins(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -200,7 +206,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                       builder: (context, snapshot) {
                         String deviceName = snapshot.data ?? "None";
                         return Text(
-                          "Connected to: \n$deviceName",
+                          deviceName,
                           style: GoogleFonts.poppins(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         );
