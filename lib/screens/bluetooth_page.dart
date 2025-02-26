@@ -63,12 +63,18 @@ class BluetoothPageState extends State<BluetoothPage> {
             return Column(
               children: [
                 // ✅ Always Show Refresh Button
-                CustomButton(
-                  text: "Refresh bluetooth list",
-                  onPressed: _bluetoothService.scanDevices,
-                  backgroundColor: primaryGreen,
-                  textColor: Colors.white,
+                SizedBox(
+                  width: 140, // ✅ Set desired width
+                  child: CustomButton(
+                    text: "Refresh",
+                    onPressed: _bluetoothService.scanDevices,
+                    backgroundColor: primaryGreen,
+                    textColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 8), // ✅ Smaller padding
+                  ),
                 ),
+
                 const SizedBox(height: 20),
 
                 // ✅ Show List of Devices Only When Disconnected
@@ -247,11 +253,16 @@ class BluetoothPageState extends State<BluetoothPage> {
                 const SizedBox(height: 20),
 
                 if (isConnected)
-                  CustomButton(
-                    onPressed: _bluetoothService.disconnect,
-                    text: 'Disconnect',
-                    textColor: Colors.white,
-                    backgroundColor: primaryOrange,
+                  SizedBox(
+                    width: 140, // ✅ Set smaller width
+                    child: CustomButton(
+                      text: "Disconnect",
+                      onPressed: _bluetoothService.disconnect,
+                      backgroundColor: primaryOrange,
+                      textColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8), // ✅ Adjust padding
+                    ),
                   ),
               ],
             ),
