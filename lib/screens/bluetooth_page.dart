@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble;
+import 'package:glu_mon/components/custom_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/bluetooth_service.dart';
@@ -57,6 +58,13 @@ class BluetoothPageState extends State<BluetoothPage> {
             Expanded(
               child: ListView(
                 children: [
+                  CustomButton(
+                    text: "Refresh bluetooth list",
+                    onPressed: _bluetoothService.scanDevices,
+                    backgroundColor: primaryGreen,
+                    textColor: Colors.white,
+                  ),
+
                   // StreamBuilder<List<bt_serial.BluetoothDevice>>(
                   //   stream: _bluetoothService.classicDevicesStream,
                   //   builder: (context, snapshot) {
@@ -66,7 +74,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                   //         _bluetoothService.connectToClassicDevice);
                   //   },
                   // ),
-                  // const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   StreamBuilder<List<bt_ble.ScanResult>>(
                     stream: _bluetoothService.bleDevicesStream,
                     builder: (context, snapshot) {
@@ -83,11 +91,6 @@ class BluetoothPageState extends State<BluetoothPage> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _bluetoothService.scanDevices,
-        backgroundColor: primaryDarkBlue,
-        child: const Icon(Icons.refresh),
       ),
     );
   }
