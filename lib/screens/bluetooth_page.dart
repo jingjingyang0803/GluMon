@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as bt_ble;
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart'
-    as bt_serial;
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/bluetooth_service.dart';
@@ -40,7 +38,7 @@ class BluetoothPageState extends State<BluetoothPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text('',
             style: GoogleFonts.poppins(
@@ -59,21 +57,21 @@ class BluetoothPageState extends State<BluetoothPage> {
             Expanded(
               child: ListView(
                 children: [
-                  StreamBuilder<List<bt_serial.BluetoothDevice>>(
-                    stream: _bluetoothService.classicDevicesStream,
-                    builder: (context, snapshot) {
-                      return _buildDeviceCard(
-                          "Classic Bluetooth (SPP) Devices",
-                          snapshot.data ?? [],
-                          _bluetoothService.connectToClassicDevice);
-                    },
-                  ),
-                  const SizedBox(height: 10),
+                  // StreamBuilder<List<bt_serial.BluetoothDevice>>(
+                  //   stream: _bluetoothService.classicDevicesStream,
+                  //   builder: (context, snapshot) {
+                  //     return _buildDeviceCard(
+                  //         "Classic Bluetooth (SPP) Devices",
+                  //         snapshot.data ?? [],
+                  //         _bluetoothService.connectToClassicDevice);
+                  //   },
+                  // ),
+                  // const SizedBox(height: 10),
                   StreamBuilder<List<bt_ble.ScanResult>>(
                     stream: _bluetoothService.bleDevicesStream,
                     builder: (context, snapshot) {
                       return _buildDeviceCard(
-                          "BLE Devices",
+                          "",
                           snapshot.data?.map((r) => r.device).toList() ?? [],
                           _bluetoothService.connectToBleDevice);
                     },
@@ -133,9 +131,20 @@ class BluetoothPageState extends State<BluetoothPage> {
                           title: Text(device.name.isNotEmpty
                               ? device.name
                               : "Unknown Device"),
-                          subtitle: Text(device.id.toString()),
+                          // subtitle: Text(device.id.toString()),
                           trailing: ElevatedButton(
                             onPressed: () => connectFunction(device),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: lightGreen, // ✅ Green background
+                              foregroundColor: Colors.white, // ✅ White text
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8), // Optional: Adjust padding
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    30), // Optional: Rounded corners
+                              ),
+                            ),
                             child: const Text("Connect"),
                           ),
                         );

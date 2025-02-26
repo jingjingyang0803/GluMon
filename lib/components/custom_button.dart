@@ -27,7 +27,7 @@ class CustomButton extends StatelessWidget {
         minimumSize: Size(double.infinity, 48),
         padding: padding, // Customizable padding
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
       child: Text(
