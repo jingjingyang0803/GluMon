@@ -80,15 +80,15 @@ class MeasurePageState extends State<MeasurePage> {
                 SizedBox(height: 20),
                 Text(
                   glucoseProvider.isConnected
-                      ? "Measuring..."
-                      : "Device Not Connected",
+                      ? "Measuring glucose levels..."
+                      : "No device connected. Please pair a device.",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: glucoseProvider.isConnected
-                        ? lightBlue
-                        : Color(0xFFFA7E70),
+                    color: Color(0xFFFA7E70),
                   ),
+                  textAlign: TextAlign
+                      .center, // ✅ Ensures text is centered inside Column
                 ),
                 SizedBox(height: 10),
                 GlucoseWaveWidget(
