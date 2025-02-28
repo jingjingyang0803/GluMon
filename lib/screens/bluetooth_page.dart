@@ -185,11 +185,11 @@ class BluetoothPageState extends State<BluetoothPage> {
             child: Column(
               children: [
                 Text(
-                  "Connected Device",
+                  "Device Connected!",
                   style: GoogleFonts.poppins(
-                      fontSize: 22, fontWeight: FontWeight.bold),
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -197,7 +197,7 @@ class BluetoothPageState extends State<BluetoothPage> {
                       isConnected
                           ? Icons.bluetooth_connected
                           : Icons.bluetooth_disabled,
-                      color: isConnected ? Colors.green : Colors.red,
+                      color: isConnected ? lightGreen : Colors.red,
                       size: 30,
                     ),
                     const SizedBox(width: 10),
